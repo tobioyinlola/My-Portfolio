@@ -1,33 +1,204 @@
 ---
 title: "Evals for product managers"
-excerpt: "[EXCERPT: how to define, build and use evals without being an ML engineer.]"
+excerpt: "A step-by-step way to build evals without being an ML engineer: read real traces, name your failure modes, turn them into checks, validate an LLM judge, and gate every change."
 tags:
   - "AI PM"
   - "Evals"
 accent: lilac
-date: "2025-01-03"
+date: "2026-10-23"
 ---
 
 ## The short version
 
-<Placeholder>
-Two or three sentences: who this is for and what they will be able to do afterwards.
-</Placeholder>
+An eval is a test for AI behavior. For a PM, an eval is **your spec made executable**: it says what "good" means in a way a machine can check on every change. Without evals, every prompt tweak or model upgrade is a coin flip, and you find out about regressions from customers.
 
-## Step by step
+The workflow that holds up in practice is short:
 
-1. [Step one]
-2. [Step two]
-3. [Step three]
+1. Collect **real examples** of your product's inputs and outputs.
+2. **Read them yourself** and write down what goes wrong (error analysis).
+3. Group the problems into **a handful of failure modes** and count them.
+4. Turn the important failure modes into **checks**: code where you can, an LLM judge where you must, humans to calibrate.
+5. **Validate the judge** against human labels before you trust it.
+6. Run the suite on every change, and keep sampling production.
 
-## Common mistakes
+You don't need a framework or a data science team to start. A spreadsheet and an afternoon are enough for steps 1 to 3.
 
-<Placeholder>
-The two or three errors you see most often, and how to avoid them.
-</Placeholder>
+## The vocabulary you need
 
-## Template
+Anthropic's engineering team uses a clean set of terms for agent evals, and they work for any LLM feature.
 
-<Placeholder>
-Link or paste the template, checklist or prompt that readers can copy.
-</Placeholder>
+| Term | Plain meaning |
+| --- | --- |
+| **Task** (test case) | One input plus the criteria for success |
+| **Trial** | One attempt at a task. Run several, because outputs vary between runs |
+| **Grader** | Logic that scores one aspect of a result. A task can have several |
+| **Transcript** (trace) | The full record of a trial: output, tool calls, intermediate steps |
+| **Outcome** | The final state of the world. "Booked" means the reservation exists, not that the model said so |
+| **Eval suite** | A set of tasks measuring one capability or behavior |
+
+Two kinds of suites matter:
+
+- **Capability evals** ask "what can it do well?" They start at a low pass rate and give the team a hill to climb.
+- **Regression evals** ask "does it still do what it used to?" They should sit close to 100 percent, and a drop means something broke. A capability eval that reaches a high pass rate graduates into the regression suite.
+
+## Step 1: Get real data
+
+Real traces beat invented ones. Sources, in order of preference:
+
+1. **Production logs** of real user inputs and the model's outputs.
+2. **Internal dogfooding** by your team on real work.
+3. **Support tickets and bug reports**: every complaint is a free test case. Anthropic's advice is to start by converting the checks you already do manually before each release, plus bug-tracker and support-queue failures, into test cases, prioritized by user impact.
+4. **Synthetic data** only if you have nothing else. Don't ask a model for "50 test questions". Define dimensions first (user type, scenario, difficulty, input length, language) and generate combinations, then have a human review them.
+
+Start with **20 to 50 tasks**. Early on, the improvements are big enough that a small set shows them clearly, and waiting makes evals harder to build later.
+
+## Step 2: Error analysis (the highest-return hour you will spend)
+
+This is the step most teams skip, and the one practitioners such as Hamel Husain stress most: **look at your data yourself before you build any automated evaluator.** Reading raw traces is how you discover failures you didn't think to test for, and it builds intuition about your users that no dashboard gives you.
+
+### The procedure
+
+1. **Sample 50 to 100 traces** (a common starting range; keep going until new traces stop revealing new kinds of problems). Include a spread of users, input types and lengths.
+2. **Open coding:** for each trace, write one line on the *first thing that went wrong*, in plain language. Do not try to fix it, and do not score it. If the trace is fine, write "ok".
+3. **Group the notes** into 4 to 8 failure modes (this is called axial coding). If you use an LLM to propose groupings, review them by hand. Models tend to lump together problems that need different fixes, such as "login crashes" and "login is slow".
+4. **Count** how many traces fall into each mode.
+5. **Pick the top three** by frequency and by severity. Those are your first evals.
+
+### A spreadsheet that works
+
+| Trace ID | Input (short) | What went wrong first | Failure mode | Severity (1-3) |
+| --- | --- | --- | --- | --- |
+| 0042 | "Cancel my plan and refund last month" | Offered refund policy but ignored the cancel request | Ignores part of request | 2 |
+| 0043 | Long contract PDF | Quoted a clause that isn't in the document | Hallucinated source | 3 |
+| 0044 | Short greeting | Fine | ok | 0 |
+
+You will usually end up with something like: "ignores part of the request", "invents facts not in the context", "wrong tone for the user", "doesn't escalate when it should", "formatting breaks the downstream parser". Your list will differ, and that is the point.
+
+Repeat this every few weeks. New features and new user behavior create new failure modes.
+
+## Step 3: Turn failure modes into checks
+
+Match the type of checker to the type of failure.
+
+| Failure | Best checker | Example |
+| --- | --- | --- |
+| Deterministic, objective | **Code check** (cheap, fast, repeatable) | Output is valid JSON; required fields present; no email addresses in the reply; length under the limit; the right tool was called |
+| Semantic or subjective | **LLM judge** (needs calibration) | "Every claim is supported by the source"; "reply addresses all parts of the request"; "tone matches the brand rule" |
+| High stakes or unclear | **Human review** | Medical, legal or financial content; calibrating judges; building the golden set |
+
+Prefer code checks whenever you can write one. Use an LLM judge only for what code can't see. Grade the **outcome** where possible rather than the exact path the model took, because models find valid routes you didn't anticipate and rigid step checks punish good solutions.
+
+## Step 4: Build an LLM judge you can trust
+
+An LLM judge is a prompt that grades another model's output. It is useful and easy to get wrong.
+
+### Rules that keep judges honest
+
+- **One failure mode per judge.** A judge that scores "overall quality" gives you a number you can't act on.
+- **Binary pass or fail**, with a short written reason. Avoid 1 to 5 scales; two reviewers rarely agree on a 3 versus a 4, and a threshold on an average hides what broke.
+- **Define the criterion precisely** and include a few labeled examples of pass and fail, including borderline ones.
+- **Allow "unknown"** when the information isn't there, which reduces made-up verdicts.
+- **Don't reuse a judge across dimensions.** Grade each dimension with its own isolated judge.
+
+### A judge prompt skeleton
+
+```text
+You are checking one thing: does the reply contain any claim that is NOT
+supported by the provided source text?
+
+Source text:
+[SOURCE]
+
+Reply to check:
+[REPLY]
+
+Definitions:
+- "Claim": a statement of fact about the source, a person, a number or a date.
+- "Supported": the source text states it or directly implies it.
+- Paraphrasing is fine. Adding detail that is not in the source is NOT fine.
+
+Examples:
+[2 PASS examples and 2 FAIL examples, with one-sentence reasons]
+
+Answer with a short reason first, then exactly one of: PASS, FAIL, UNKNOWN.
+```
+
+### Validate the judge before you trust it
+
+1. Have a domain expert label 50 to 100 outputs **pass or fail, with a one-line critique each.** Those critiques also feed back into your judge prompt.
+2. Split the labels into a **development set** (used to tune the prompt) and a **test set** (touched only to measure it).
+3. Run the judge on the dev set, compare with the human labels, and look at **both** directions: how many true failures it catches, and how many good outputs it wrongly fails.
+4. Edit the prompt, re-run, repeat. Then measure once on the test set.
+5. Do not ship a judge whose agreement with humans you haven't measured. One practitioner write-up reported a naive judge catching only about half of known failures, which is exactly what this step is meant to reveal.
+
+Re-check the judge when you change its model, its prompt, or when your product's content changes.
+
+## Step 5: Build a balanced golden set
+
+The golden set is the labeled collection you run on every change.
+
+- **Seed it from the traces you analyzed**, with the verdict an expert agreed on.
+- **Balance it.** Test where a behavior should happen and where it should *not*. One-sided evals produce one-sided products, for example a model that over-refuses or over-escalates because you only tested for under-refusing.
+- **Write tasks unambiguously.** Two experts should reach the same verdict. A task that every model fails all the time often means the task or the grader is broken.
+- **Keep reference answers** where possible, to prove the task is solvable.
+- **Version it** in your repo like code, and keep a changelog of what you added and why.
+- **Grow it** from production: every new failure you find becomes a new case.
+
+A few dozen cases is a fine start; many teams grow to a few hundred over time. Larger numbers you may see online (200 to 500) are targets for later, not requirements for day one.
+
+## Step 6: Run evals on every change
+
+Make the suite part of how the team ships.
+
+- **Run it** when the prompt, the model, retrieval settings, tools or guardrails change. Block the change if the regression suite drops beyond the agreed threshold.
+- **Set two gates** in the PRD: a ship gate for new capability and a regression gate for existing behavior.
+- **Run multiple trials** for non-deterministic tasks. Use the right aggregate:
+  - **pass@k**: chance of at least one success in k tries. Use it when one good attempt is enough.
+  - **pass^k**: chance that all k tries succeed. Use it when consistency matters, such as customer-facing flows. A 75 percent per-try success rate gives about 42 percent for three consecutive successes (0.75 to the power of 3).
+- **Use a model-upgrade protocol:** when a new model version appears, run the full suite on it, compare pass rates and cost per task, then decide. Don't upgrade because it is new.
+- **Keep each trial isolated.** Shared state, leftover files or cached results can inflate scores and cause correlated failures.
+
+## Step 7: Don't stop at offline evals
+
+Offline evals tell you whether a change is safe to ship. They don't tell you everything about real use.
+
+- **Sample production traffic weekly** (for example 50 to 100 traces) and repeat the error-analysis pass.
+- **Capture user signals:** thumbs, edits, regenerations, abandonment, escalations. A regeneration or heavy edit is a failure signal.
+- **A/B test** when a change affects behavior users can feel.
+- **Watch for saturation:** a suite at 100 percent only protects against regressions. Add harder cases from new failures.
+
+## Pitfalls that waste weeks
+
+- **Skipping the reading.** Scores without reading transcripts hide grader bugs. In one well-known case, fixing rigid grading, ambiguous task specs and broken tasks moved a reported score from 42 percent to 95 percent without changing the model.
+- **Generic metrics** like "helpfulness 4.2 out of 5". They are easy to compute and hard to act on. Prefer specific, binary checks tied to your failure modes.
+- **Over-trusting one judge** that nobody calibrated.
+- **Grading the exact path** instead of the outcome.
+- **No ownership.** Someone needs to own the suite. The PM should own the definition of "good" and the golden set; engineers own the harness.
+- **Evals as a gate nobody can change.** When the product changes on purpose, update the criteria and write down why.
+
+## A two-week plan
+
+| Day | Do |
+| --- | --- |
+| 1 | Export 100 real traces (or run a dogfood session). |
+| 2 | Open coding on 50 of them: one line each. |
+| 3 | Group into failure modes, count, pick the top three. |
+| 4 | Write a code check for each deterministic failure. |
+| 5 | Draft one LLM judge for the top semantic failure. |
+| 6 to 7 | Expert-label 50 to 100 outputs; split into dev and test sets. |
+| 8 to 9 | Tune the judge, measure agreement on the test set. |
+| 10 | Assemble the golden set; add should-not cases. |
+| 11 to 12 | Hook it into CI or a one-command script; set ship and regression gates. |
+| 13 | Run it on your current prompt and on one alternative model; compare quality and cost. |
+| 14 | Write the results and next failure modes into the PRD. |
+
+## Sources
+
+- [Demystifying evals for AI agents, Anthropic Engineering](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) (terminology, grader types, capability vs regression, pass@k vs pass^k, roadmap, pitfalls)
+- [AI Evals: Everything You Need to Know, Hamel Husain](https://hamel.dev/blog/posts/evals-faq/) (error analysis, open and axial coding, validating judges)
+- [From error analysis to evaluating LLM applications, Langfuse](https://langfuse.com/blog/2025-08-29-error-analysis-to-evaluate-llm-applications)
+- [What works (and what doesn't) when automating error analysis, Atla](https://atla-ai.com/post/automating-error-analysis)
+- [A pragmatic guide to LLM evals for devs, The Pragmatic Engineer](https://newsletter.pragmaticengineer.com/p/evals)
+- [LLM Evals: The Feedback Loop Behind Reliable AI Agents, LangChain](https://www.langchain.com/resources/llm-evals)
+
+Sample sizes in this guide (50 to 100 traces, 20 to 50 starting tasks) are common starting points from practitioner writing, not fixed rules. Adjust them to the variety of your data.

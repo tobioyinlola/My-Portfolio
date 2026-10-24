@@ -1,33 +1,232 @@
 ---
 title: "How to write a PRD for an AI feature"
-excerpt: "[EXCERPT: a PRD template that covers quality bars, failure modes and cost.]"
+excerpt: "A copy-paste PRD template for LLM features: behavior specs you can test, an eval plan, failure modes, cost and latency budgets, and a rollout with kill criteria."
 tags:
   - "AI PM"
   - "PRDs"
 accent: mustard
-date: "2025-01-04"
+date: "2026-10-24"
 ---
 
 ## The short version
 
-<Placeholder>
-Two or three sentences: who this is for and what they will be able to do afterwards.
-</Placeholder>
+A normal PRD says what the feature does. An AI PRD also has to say **how good is good enough, how you will measure it, what happens when the model is wrong, and what each answer is allowed to cost**. The output of an LLM changes from run to run, so "the button saves the file" style acceptance criteria are not enough. You replace them with evaluation criteria: a test set, a rubric, and a pass-rate threshold.
 
-## Step by step
+If you only do four things, do these:
 
-1. [Step one]
-2. [Step two]
-3. [Step three]
+1. Write down the user's **current workaround** and its baseline (time, cost, error rate). Your threshold comes from that, not from a gut feeling.
+2. Run a **two-hour feasibility spike** before you commit to a spec.
+3. Write the behavior as **must / must not** statements that a test can check.
+4. Put the **failure behavior** (what the user sees when the model is wrong or unavailable) in the PRD as a first-class requirement.
+
+## What actually changes when the feature is probabilistic
+
+You don't need theory here, just the five differences that change how you write.
+
+| Classic PRD | AI feature PRD |
+| --- | --- |
+| Acceptance criteria: pass or fail | Evaluation criteria: pass rate over a test set (a distribution, not a single result) |
+| Bugs are reproducible | Failures are statistical; you track failure modes and their rates |
+| Cost is mostly fixed infrastructure | Every request has a variable cost (tokens in and out, tool calls) |
+| Latency is a performance detail | Latency depends on model, prompt size and output length; it is a product decision |
+| Error states are rare edge cases | Wrong-but-confident output is a normal state you must design for |
+
+Practitioner guides from 2026 agree on the core move: replace pass/fail acceptance criteria with statistical assertions, for example "routes at least 90 percent of queries correctly on the test set". Treat the specific numbers you see in blog posts as examples, not standards. Your thresholds come from your users' workaround and your risk level.
+
+## Step 0: run a feasibility spike before writing the spec
+
+Do this before the PRD, not after. It takes about two hours and it stops you from specifying something the current models can't do.
+
+1. **Collect 20 real inputs.** Use real tickets, documents or queries, not ones you invent. Include short ones, long ones, messy ones and a few that should be refused.
+2. **Run a baseline prompt** on a capable current model. Keep the prompt simple. You are testing the task, not your prompt skills.
+3. **Grade each output by hand** as pass or fail, and write one sentence on why each failure failed.
+4. **Decide.**
+
+| Baseline result | What it usually means | What to do |
+| --- | --- | --- |
+| Mostly passes | The task is feasible | Write the PRD; the work is reliability, UX and cost |
+| Fails in a few repeating ways | Fixable with better context, retrieval, examples or a workflow step | Write the PRD with those failure modes as explicit risks |
+| Fails almost everywhere | The task may be too hard for current models, or the inputs lack the information needed | Narrow the scope, change the task, or add a human step before you commit |
+
+Keep the 20 graded examples. They become the seed of your eval set (see the evals guide in this library).
+
+## The PRD template (copy this)
+
+```text
+# [Feature name] PRD
+
+## 1. Problem and user
+Who is the user, what are they trying to get done, what is painful today?
+
+## 2. Current workaround and baseline
+How do they do it now? Time, cost, error rate. Source of the numbers.
+
+## 3. Success metrics
+Product: [adoption, task completion, time saved, retention]
+Model quality: [pass rate on eval set, by failure mode]
+Guardrail metrics: [complaint rate, escalation rate, cost per task]
+
+## 4. Behavior spec
+MUST:        [testable statements]
+MUST NOT:    [testable statements]
+SHOULD:      [nice to have, ranked]
+Out of scope: [explicit list]
+
+## 5. Eval plan
+Eval set: source, size, who labels it, how it is versioned
+Rubric: binary pass/fail per criterion, with definitions
+Thresholds: ship gate and regression gate
+Cadence: on every prompt/model/retrieval change; weekly production sample
+
+## 6. Failure modes and fallbacks
+Top failure modes -> how detected -> what the user sees -> who is notified
+
+## 7. Guardrails, data and privacy
+What data the model sees, what it may never see or output, prompt injection
+and tool-permission rules, retention, regions
+
+## 8. Cost and latency budget
+Max cost per task, p50 and p95 latency, what happens when exceeded
+
+## 9. UX states
+Loading, partial, success, low confidence, refusal, error, offline,
+edit/undo, feedback (thumbs + reason)
+
+## 10. Rollout and kill criteria
+Stages, audience, success gates, rollback trigger, owner
+
+## 11. Assumptions and open questions
+What must be true for this to work? How and by when do we test each one?
+```
+
+## How to fill in each section
+
+### 2. Current workaround and baseline
+
+Your threshold should come from what users do today. If a user spends 8 minutes pulling key points out of a long document, a summary feature has to save a meaningful part of that time while staying accurate enough that they don't re-read the original. If it saves 3 minutes but they still check everything, you built a worse product.
+
+Write the baseline as a sentence with a source: "Support agents spend about [X] minutes per ticket on first-pass summary (source: [timing study / interviews / logs])."
+
+### 4. Behavior spec: make every line testable
+
+The most common failure in AI PRDs is vague behavior statements. If you can't write a test case for a sentence, rewrite the sentence.
+
+| Vague | Testable |
+| --- | --- |
+| "Summaries should be accurate." | "Every claim in the summary is supported by the source text. A reviewer finds zero unsupported claims in at least [X] percent of eval cases." |
+| "Should sound professional." | "Uses no slang, no emojis, and second person only. Passes the tone rubric (3 binary checks)." |
+| "Handles bad inputs gracefully." | "If the input has no relevant content, the response says so in one sentence and does not invent a summary." |
+| "Don't leak private data." | "Never outputs email addresses or phone numbers from the input. Zero leaks across the adversarial set." |
+| "Be fast." | "p95 end-to-end latency under [X] seconds for inputs up to [N] words." |
+
+Write at least as many **MUST NOT** lines as **MUST** lines. Most of the product risk lives there.
+
+### 5. Eval plan: the section that replaces acceptance criteria
+
+- **Start small, and write it before building.** A first eval set of 10 to 30 cases is enough to drive the spec; plan to grow it to hundreds from production data. Cover short, long, technical, ambiguous and badly formatted inputs, plus cases that should be refused.
+- **Use binary rubric items** (pass or fail with a written definition), not a 1 to 5 score. They are easier to agree on and easier to act on.
+- **Name who labels** and how disagreements are settled. Two domain experts should usually reach the same verdict on a case; if they don't, the case or the rubric is unclear.
+- **Set two gates.** A ship gate ("at least [X] percent pass on the eval set, zero critical failures") and a regression gate ("no drop of more than [Y] points when the prompt or model changes").
+- **Say when evals run.** On every prompt, model or retrieval change, plus a scheduled sample of real production traffic.
+- **Say how you judge:** code checks where possible (valid JSON, required fields), an LLM judge with a rubric for the rest, and human review to calibrate the judge and cover high-stakes cases.
+
+### 6. Failure modes and fallbacks
+
+List the top five ways this feature can go wrong. For each, fill in a row:
+
+| Failure mode | Example | How we detect it | What the user sees | Owner |
+| --- | --- | --- | --- | --- |
+| Hallucinated detail | Summary cites a date that is not in the source | Judge check "claims supported by source"; user flag | Source quotes shown beside each claim; one-click report | [PM / Eng] |
+| Wrong-language reply | User writes in one language, reply is in another | Language detection check | Reply regenerated; fall back to the user's language | [Eng] |
+| Model or provider outage | Timeouts, 5xx | Error rate and timeout monitor | "Couldn't generate right now," manual path stays usable | [Eng] |
+| Prompt injection | Document text says "ignore your instructions" | Adversarial test set; output filters | Feature refuses, and the incident is logged | [Eng / Security] |
+| Over-confident wrong answer | Plausible but incorrect output | Sampled human review | Confidence cues, easy edit, never auto-send high-stakes output | [PM] |
+
+The rule of thumb: **never let the AI be the only path.** The user should always be able to continue the task without it.
+
+### 8. Cost and latency budget
+
+Write a per-task budget and compute it, don't guess it.
+
+```text
+cost per task = (input tokens x input price) + (output tokens x output price)
+                + any tool, search or retrieval costs
+```
+
+Look up the current per-token prices on your provider's pricing page when you do the math, because prices change. Then:
+
+1. Measure the **average and the 95th percentile** of input and output tokens on your eval set. The long inputs set your worst case.
+2. Multiply by expected volume per user per month. Compare it with what the user pays you (or the value of the time saved).
+3. Write the budget into the PRD: "Max [X] cents per task at p95. If the estimate exceeds the budget, we first shorten context, then route simple cases to a smaller model, then cut scope."
+
+Two decisions every AI PRD should make explicit:
+- **Which model for which step.** Simple classification and routing steps often run well on smaller, cheaper models; reserve the strongest model for the hard step.
+- **What users see while they wait.** Streaming the answer, showing progress, or running in the background all change perceived latency. Pick one on purpose.
+
+### 10. Rollout and kill criteria
+
+Roll out in stages, each with an exit gate:
+
+1. **Shadow mode:** the model runs, users don't see it. You compare against humans.
+2. **Internal dogfood:** your own team uses it for real work.
+3. **Small beta:** 1 to 5 percent or named customers, with feedback buttons.
+4. **General availability** with monitoring and a kill switch.
+
+Write the **kill criteria** before launch, for example: "Roll back if the critical-failure rate on sampled traffic exceeds [X] percent, or if cost per task exceeds [Y] for two consecutive days."
+
+## Worked example (illustrative)
+
+This is a condensed example of a filled-in PRD for a made-up feature, so you can see the level of detail. The numbers are placeholders to show format, not recommendations.
+
+```text
+Feature: Ticket summary for support agents
+
+2. Baseline: agents spend about [X] min per ticket reading the thread.
+   Target: agent reads summary, opens thread only when needed.
+
+4. MUST   include: customer's issue, what was already tried, current status
+   MUST   cite the message each fact came from
+   MUST NOT state anything not present in the thread
+   MUST NOT include payment card numbers or passwords
+   MUST   say "Not enough information" for threads under 2 messages
+
+5. Eval: 40 labeled threads (10 long, 10 messy, 10 multi-language,
+   10 adversarial). Rubric: 5 binary checks.
+   Ship gate: at least [X]% pass, zero payment-data leaks.
+   Regression gate: no drop above [Y] points on any change.
+
+6. Failure -> fallback: if generation fails or times out after [N] s,
+   show the raw thread; summary button stays visible.
+
+8. Budget: max [X] cents per summary at p95; p95 latency under [N] s.
+
+10. Rollout: shadow 1 week -> internal agents 2 weeks -> 10% of agents.
+    Kill if sampled critical failures exceed [X]% or cost breaches budget.
+```
 
 ## Common mistakes
 
-<Placeholder>
-The two or three errors you see most often, and how to avoid them.
-</Placeholder>
+- **Specifying the model instead of the behavior.** The PRD should survive a model swap. Name the quality bar, not the vendor.
+- **No "must not" list.** Risks are hidden in what the feature is forbidden to do.
+- **A single accuracy number.** One average hides the 5 percent of cases that cause the most harm. Report by failure mode and by input type.
+- **Evals written after launch.** Then the thresholds follow what the product happens to do rather than what users need.
+- **Ignoring the cost of the long tail.** The p95 input is what blows your budget.
+- **Letting the AI be the only path.** Always keep a non-AI way to finish the task.
 
-## Template
+## Do this this week
 
-<Placeholder>
-Link or paste the template, checklist or prompt that readers can copy.
-</Placeholder>
+1. Pick one AI feature you own or want to propose.
+2. Run the 20-example feasibility spike (Step 0) and keep the graded results.
+3. Fill in sections 2, 4 and 6 of the template from those results.
+4. Write the eval plan (section 5) and share the 20 graded examples with an engineer. If you two disagree on any grade, fix the rubric before writing more.
+5. Compute the cost per task for the p95 input and put the budget in the doc.
+
+## Sources
+
+- [How to Write a PRD for AI Features (2026), IdeaPlan](https://www.ideaplan.io/blog/how-to-write-prd-for-ai-features)
+- [The eval-first PRD, SFAI Labs](https://sfailabs.com/guides/the-eval-first-prd-why-your-spec-should-include-test-cases-on-day-one)
+- [AI PRD template, ProductMap](https://www.productmap.io/blog/ai-prd-template)
+- [Demystifying evals for AI agents, Anthropic Engineering](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+- [Building effective agents, Anthropic](https://www.anthropic.com/research/building-effective-agents) (use the simplest approach that works; model routing for cost)
+
+Thresholds, sample sizes and percentages in this guide are starting points drawn from practitioner writing, not industry standards. Validate them against your own users and risk level.

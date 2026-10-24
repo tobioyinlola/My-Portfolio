@@ -1,0 +1,184 @@
+---
+title: "Launching an AI feature: guardrails, fallbacks and a go-live checklist"
+excerpt: "A practical pre-launch checklist for LLM features: layered guardrails, prompt injection basics, human-in-the-loop rules, fallbacks, cost and latency limits, staged rollout and monitoring."
+tags:
+  - "AI PM"
+  - "Evals"
+accent: mustard
+date: "2026-10-19"
+---
+
+## The short version
+
+Most AI launch problems are not about the model being "bad". They come from the product having **no plan for the moments when the model is wrong, slow, expensive or attacked**. This guide gives you a checklist for those moments. Use it as a gate before you turn a feature on for real users.
+
+The principles:
+
+1. **Start with the simplest design that works.** Anthropic's guidance on building agents is to find the simplest solution and add complexity only when it clearly improves results. A single well-prompted call with the right context often beats a complex agent, and it is cheaper, faster and easier to test.
+2. **Layer your defenses.** No single filter is a complete defense; combine design limits, permissions, checks and monitoring.
+3. **Never make the AI the only path.** The user can always finish the task without it.
+4. **Limit what it can do before you try to limit what it says.** Permissions on tools and data matter more than clever prompts.
+5. **Launch in stages with a kill switch**, and write the rollback criteria before you start.
+
+## 1. Decide how much autonomy the feature gets
+
+More autonomy means more value and more risk. Pick a level on purpose.
+
+| Level | What the AI does | Example | Typical controls |
+| --- | --- | --- | --- |
+| **Suggest** | Proposes; the human decides and acts | Draft reply the agent edits and sends | Edit, accept and reject controls; feedback |
+| **Act with approval** | Prepares an action; waits for confirmation | "Refund $40. Approve?" | Clear preview of the action; audit log |
+| **Act within limits** | Acts alone inside strict bounds | Auto-tag tickets; auto-refund under a set amount | Hard limits in code, not in the prompt; sampling review |
+| **Act freely** | Chooses steps and tools on its own | Autonomous research or coding agent | Sandbox, tight permissions, budgets, human review of outcomes |
+
+Anthropic distinguishes **workflows** (LLMs and tools orchestrated through predefined code paths) from **agents** (LLMs directing their own steps and tools). Workflows are more predictable and cheaper to evaluate; agents suit open-ended problems where the number of steps can't be known in advance, and they cost more and can compound errors. Default to a workflow, and graduate to an agent only when evals show it's needed.
+
+Useful workflow patterns when one call isn't enough:
+
+- **Prompt chaining:** fixed steps with a check between them (outline, check, then draft).
+- **Routing:** classify the input, send it to a specialized path or a cheaper model.
+- **Parallelization:** run a guardrail check alongside the main response, or vote across several runs for confidence.
+- **Evaluator-optimizer:** one call generates, another critiques, loop while it measurably improves results.
+
+## 2. Guardrails, in layers
+
+Think of guardrails as five layers. Fill in each layer for your feature.
+
+| Layer | Question | Examples |
+| --- | --- | --- |
+| **Design limits** | What is the AI simply not able to do? | Read-only data access; no network access; no email sending; no deletes |
+| **Permissions and tools** | What can it touch, and with whose rights? | Least-privilege API keys; per-user scoping; separate read and write tools; spending caps |
+| **Input checks** | What do we screen before the model sees it? | File type and size limits; PII detection and redaction; length caps; abuse and policy classifiers |
+| **Output checks** | What do we verify before the user or a system sees it? | Schema validation; citation or grounding check; PII and secret scan; policy classifier; business rules in code |
+| **Monitoring and response** | How do we learn when something slips through? | Logging, sampled review, alerts on failure and cost, user reporting, kill switch |
+
+### Prompt injection: what a PM needs to know
+
+Prompt injection is when text the model reads (a web page, a document, an email, a user message) contains instructions that override or bend your intended behavior. It has been the number-one item in the OWASP Top 10 for LLM Applications in both the 2023 and 2025 lists.
+
+Why it's hard: the model processes **instructions and data in the same stream of text**, so ordinary input validation doesn't fully separate them. Treat any single filter or "guard model" as one layer, not a fix. Published tests have shown guard tools being evaded.
+
+What to do in the PRD and the design:
+
+- **Assume untrusted content will contain instructions.** Anything fetched, uploaded or user-written is untrusted.
+- **Reduce the blast radius.** If an attacker fully controls the model's output, what's the worst thing the system can do? Make that thing impossible: no access to other users' data, no tool that can exfiltrate or delete.
+- **Separate read and write capabilities.** An agent that reads untrusted content shouldn't also hold high-impact tools without a human approval step.
+- **Require confirmation for sensitive actions** (sending, paying, deleting, sharing) and show exactly what will happen.
+- **Never put secrets in prompts.** Assume prompts can be extracted.
+- **Test for it.** Add an adversarial set (instructions hidden in documents, "ignore previous instructions", attempts to reveal the system prompt, attempts to call tools with other users' IDs) to your eval suite and run it on every change.
+- **Map each OWASP risk to the layer that can control it.** The list is a taxonomy of risks, not a control checklist; some risks (for example poisoned training data) aren't inference-time problems.
+
+## 3. Human in the loop: set the rules in numbers
+
+Decide up front which outputs a human reviews and how.
+
+| Situation | Suggested rule (adjust to your risk) |
+| --- | --- |
+| Low stakes, easy to undo | No review; sample a small share weekly |
+| Medium stakes | Show the output to the user as an editable draft; they own the send |
+| High stakes (money, health, legal, safety, irreversible) | A qualified human approves before anything happens |
+| Low confidence or out-of-scope request | Route to a human or a standard flow, with the context attached |
+
+Two practical points:
+
+- **Model confidence is not reliable on its own.** Use checks you can measure: schema validity, grounding in the provided sources, agreement across multiple runs, rule checks. Use those signals to decide when to escalate.
+- **Make review fast.** If checking takes as long as doing the task, reviewers will rubber-stamp. Show sources next to claims, highlight what changed and make accept and reject one click.
+
+## 4. Fallbacks and error states
+
+Design every state that isn't "perfect answer".
+
+| State | What the user sees | Notes |
+| --- | --- | --- |
+| Loading | Progress or streaming text | Pick one pattern on purpose; streaming makes waits feel shorter |
+| Slow (over the latency budget) | "Still working..." plus a way to continue without waiting | Set a timeout and a cancel |
+| Low confidence | Cautious wording, sources, "check this" cue | Don't present guesses as facts |
+| Refusal or out of scope | A clear, short explanation and another way forward | Refusals should be tested, in both directions |
+| Provider error or outage | Normal non-AI path stays usable | Retry with backoff once, then degrade gracefully |
+| Wrong answer reported | One-click feedback with a reason; easy undo | Feed these into your next error analysis |
+| Cost cap hit | Graceful limit message; queue or reduce scope | Never fail silently |
+
+## 5. Cost and latency limits
+
+- **Set budgets before launch:** a maximum cost per task and per user per day, plus latency targets at p50 and p95. Write them in the PRD.
+- **Put the limits in code:** maximum input length, maximum output tokens, maximum tool calls or steps per request, maximum retries. Don't rely on the prompt to stay within them.
+- **Measure at p95 inputs, not averages.** A few very long inputs can dominate the bill.
+- **Levers when you're over budget**, in the order that usually costs the least quality:
+  1. Trim context (send only what's needed)
+  2. Cache repeated context where your provider supports it
+  3. Route easy cases to a smaller, cheaper model
+  4. Shorten outputs or use structured outputs
+  5. Run non-urgent work in the background or in batches
+  6. Reduce scope
+- **Alert on spend**, by feature and by user, so an abuse or a loop shows up the same day.
+
+## 6. Pre-launch checklist
+
+Tick every box or write down why you're accepting the gap.
+
+**Quality**
+- [ ] Eval set built from real data, with a ship gate and a regression gate in the PRD
+- [ ] Error analysis done on at least 50 traces; top failure modes have checks
+- [ ] LLM judges (if any) validated against human labels
+- [ ] Adversarial and prompt-injection set passes
+- [ ] Should-not-trigger cases tested, not just should-trigger
+
+**Safety and privacy**
+- [ ] Data flow documented: what the model sees, where it goes, retention, regions
+- [ ] Least-privilege keys and tool permissions; no production-wide credentials
+- [ ] Sensitive actions require confirmation
+- [ ] PII handling decided (redact, restrict or allow with consent)
+- [ ] Legal and security reviewed what applies to you (including regulatory requirements in the markets you sell into)
+
+**Product**
+- [ ] Every non-perfect state designed (see section 4)
+- [ ] A non-AI path to finish the task
+- [ ] Feedback control on each output, with a reason field
+- [ ] The AI nature of the feature is disclosed where users might assume a human
+
+**Operations**
+- [ ] Cost per task and daily spend caps set; alerts on spend and error rate
+- [ ] Latency timeouts and retries configured
+- [ ] Model and prompt versions pinned and logged with each request
+- [ ] Logging of inputs, outputs and tool calls with access controls, for error analysis
+- [ ] Kill switch or feature flag tested
+- [ ] On-call owner and an escalation path named
+
+## 7. Rollout plan
+
+| Stage | Audience | Gate to continue |
+| --- | --- | --- |
+| **Shadow mode** | No users see output; the model runs on live traffic | Agreement with humans or outcomes meets the threshold; cost per task is in budget |
+| **Internal** | Your own team on real work | No critical failures in a defined number of days; feedback addressed |
+| **Beta** | 1 to 5 percent of users, or named customers | Quality, complaint rate and cost within gates; support is ready |
+| **Ramp** | 10, 25, 50, then 100 percent | Same gates at each step, with a pause between |
+| **General availability** | Everyone, flag stays in place | Monitoring is steady; regression suite runs on every change |
+
+Write **rollback criteria** now, in numbers: "Turn the feature off if the sampled critical-failure rate exceeds [X] percent, if cost per task exceeds [Y] for two consecutive days, or on any confirmed data leak."
+
+## 8. After launch
+
+- **Week 1:** review 50 to 100 sampled traces daily; fix top failures; watch cost and latency.
+- **Weekly:** sample traces, repeat error analysis, add new failure cases to the eval set.
+- **Monthly:** review feedback and abandonment; compare quality and cost against the PRD targets.
+- **On every model or prompt change:** run the regression suite and cost check before shipping.
+- **Quarterly:** model review: run your suite on one or two candidate models and decide on numbers, not hype.
+
+## Common mistakes
+
+- **Putting safety rules only in the prompt.** Prompts are advisory. Enforce limits in code, permissions and checks.
+- **Giving agents broad tool access "for now".** Temporary permissions become permanent.
+- **No fallback.** An outage then becomes a product outage.
+- **Launching to 100 percent on day one.** You lose the chance to learn cheaply.
+- **No one owns the monitoring.** Name a person.
+- **Treating launch as the end.** For AI features, launch is when real error analysis starts.
+
+## Sources
+
+- [Building effective agents, Anthropic](https://www.anthropic.com/research/building-effective-agents) (workflows vs agents; simplest solution first; routing, parallelization, evaluator-optimizer patterns)
+- [Demystifying evals for AI agents, Anthropic Engineering](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) (balanced evals, production monitoring alongside automated evals)
+- [OWASP Top 10 for LLM Applications](https://genai.owasp.org/llm-top-10/) (official list; prompt injection is LLM01)
+- [OWASP Top 10 for LLMs explained, TrueFoundry](https://www.truefoundry.com/blog/owasp-llm-top-10) (map each risk to the layer that can control it)
+- [LLM Security: Prompt Injection Defense for Production Systems, Introl](https://introl.com/blog/llm-security-prompt-injection-defense-production-guide-2025)
+
+Thresholds, rollout percentages and review rules above are starting points to adapt to your risk level. Some security sources are vendor blogs; check claims against the primary OWASP material and your own security team before relying on them.

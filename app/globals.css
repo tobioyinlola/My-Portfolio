@@ -262,3 +262,31 @@ html.pixel-cursor dialog,
 html.pixel-cursor dialog * {
   cursor: auto !important;
 }
+
+.prose-site pre {
+  overflow-x: auto;
+  border: 2px solid var(--line);
+  border-radius: 1rem;
+  background: var(--surface);
+  padding: 1rem 1.25rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.prose-site pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  white-space: pre;
+}
+.prose-site ul:has(> li > input[type="checkbox"]),
+.prose-site li:has(> input[type="checkbox"]) {
+  list-style: none;
+}
+.prose-site li > input[type="checkbox"] {
+  margin-right: 0.5em;
+  accent-color: var(--cobalt);
+}
+.prose-site table {
+  display: block;
+  overflow-x: auto;
+}

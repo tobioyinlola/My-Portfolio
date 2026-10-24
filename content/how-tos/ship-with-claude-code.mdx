@@ -1,32 +1,239 @@
 ---
 title: "Shipping a product with Claude Code"
-excerpt: "[EXCERPT: a PM's workflow for going from spec to deployed app.]"
+excerpt: "A practical PM workflow for going from spec to deployed app: explore, plan, build with a verification loop, review in a fresh context, and hand off cleanly to engineers."
 tags:
   - "Shipping with Claude Code"
+  - "AI PM"
 accent: terracotta
-date: "2025-01-02"
+date: "2026-10-22"
 ---
 
 ## The short version
 
-<Placeholder>
-Two or three sentences: who this is for and what they will be able to do afterwards.
-</Placeholder>
+Claude Code is an agentic coding tool: it reads your files, runs commands, edits code and iterates on its own while you watch or step away. That changes your job from "write the code" to **write a precise spec, give the agent a way to check its work, and review the result**. Those are product-manager skills.
 
-## Step by step
+The workflow in one line: **explore, plan, implement with a check it can run, review in a fresh context, commit.**
 
-1. [Step one]
-2. [Step two]
-3. [Step three]
+What follows is based on Anthropic's own guidance for Claude Code, adapted for a PM who builds prototypes, internal tools and small products, and who hands larger changes to engineers.
 
-## Common mistakes
+> Features and defaults in developer tools change quickly. When a command below doesn't match what you see, check the current Claude Code documentation, or ask Claude itself, which answers questions about its own features from the current docs.
 
-<Placeholder>
-The two or three errors you see most often, and how to avoid them.
-</Placeholder>
+## The one constraint behind almost every best practice
 
-## Template
+Claude's **context window** holds the whole conversation: every message, every file it reads, every command output. It fills up fast, and performance degrades as it fills. The agent starts to forget earlier instructions and make more mistakes.
 
-<Placeholder>
-Link or paste the template, checklist or prompt that readers can copy.
-</Placeholder>
+Almost everything below is a way to keep that window clean and give Claude only what matters.
+
+## Set up once (about 30 minutes)
+
+### 1. Start in a real project folder
+
+Open a terminal in your project and run `claude`. Make the folder a git repository first, so every change can be reviewed and undone. If you are new to git, ask Claude: "initialise a git repo, add a sensible .gitignore, and make a first commit."
+
+### 2. Create a short `CLAUDE.md`
+
+`CLAUDE.md` is a file Claude reads at the start of every session. Run `/init` to generate a starter from your project, then trim it. Keep it short: bloated files make Claude ignore real instructions.
+
+| Include | Leave out |
+| --- | --- |
+| Commands Claude can't guess (build, test, lint, run) | Anything Claude can figure out by reading the code |
+| Code style rules that differ from defaults | Standard language conventions |
+| How to run a single test | Long tutorials or API docs (link instead) |
+| Branch and PR conventions | Information that changes often |
+| Project-specific decisions and gotchas | File-by-file descriptions of the codebase |
+| Required environment variables (names only, never values) | Self-evident rules like "write clean code" |
+
+For every line, ask: *would removing this cause a mistake?* If not, cut it. Check the file into git so your team can improve it. Run `/context` to confirm Claude loaded it.
+
+### 3. Decide how much to approve
+
+By default Claude asks before it edits files or runs commands. You can reduce interruptions without losing control:
+
+- Use `/permissions` to pre-approve commands you trust (for example your test and lint commands).
+- Use `/sandbox` to restrict file system and network access for commands.
+- Recent versions also offer an **auto mode**, where a separate classifier reviews actions and blocks the risky ones. Check `/permissions` and the docs to see what your version starts with.
+
+As a PM building outside the main engineering workflow, a good default is: **never give the agent production credentials or write access to production data.** Work in a sandbox, a local database or a staging environment.
+
+### 4. Connect what you use
+
+- **CLI tools** are the most context-efficient way to reach services. Install `gh` (GitHub) and tell Claude to use it for issues and pull requests.
+- **MCP servers** connect tools such as Notion, Figma or a database: `claude mcp add --transport http notion https://mcp.notion.com/mcp`. Only add servers you trust.
+
+## The core loop: explore, plan, implement, commit
+
+Letting Claude jump straight into code is the most common way to get a confident answer to the wrong problem. Separate thinking from doing with **plan mode**.
+
+### 1. Explore (plan mode: no edits)
+
+Press `Shift+Tab` until the status bar shows plan mode, or start with `claude --permission-mode plan`. Then ask questions:
+
+```text
+Read /src/auth and explain how sessions and login work.
+Also look at how we handle environment variables for secrets.
+```
+
+### 2. Plan
+
+```text
+I want to add Google sign-in. Which files need to change?
+What is the session flow? Write a step-by-step plan.
+```
+
+Press `Ctrl+G` to open the plan in your editor and edit it before Claude proceeds. This is where you catch scope creep and missed requirements, which is cheaper than catching them in code.
+
+### 3. Implement
+
+Approve the plan (or press `Shift+Tab` to leave plan mode), then:
+
+```text
+Implement the sign-in flow from your plan. Write tests for the callback
+handler, run the whole test suite, and fix any failures.
+```
+
+### 4. Commit
+
+```text
+Commit with a descriptive message and open a pull request.
+```
+
+Skip planning when the change is small and clear (a typo, a log line, a rename). A good test: if you could describe the diff in one sentence, don't plan.
+
+## Write the spec with Claude
+
+For anything bigger than a small change, let Claude interview you first. This works well for PMs because it surfaces edge cases and trade-offs before any code exists.
+
+```text
+I want to build [brief description]. Interview me in detail using the
+AskUserQuestion tool.
+
+Ask about technical implementation, UI/UX, edge cases, concerns, and
+tradeoffs. Don't ask obvious questions; dig into the hard parts I might
+not have considered.
+
+Keep interviewing until we've covered everything, then write a complete
+spec to SPEC.md.
+```
+
+Then **start a fresh session** to build from `SPEC.md`. The new session has clean context focused on implementation.
+
+A good spec for an agent is self-contained:
+
+- It names the **files and interfaces** involved.
+- It states what is **out of scope**.
+- It lists the **behaviors as testable statements** (reuse the must / must not style from your PRD).
+- It ends with an **end-to-end verification step** that proves the feature works.
+
+Time spent making the spec precise pays back more than time spent watching the implementation.
+
+## Give Claude a way to check its work
+
+This is the highest-leverage habit. Claude stops when the work *looks* done. Without a check it can run, you become the verification loop. Give it something that returns pass or fail.
+
+| Instead of | Say |
+| --- | --- |
+| "Implement an email validator." | "Write `validateEmail`. Test cases: user@example.com is true, `invalid` is false, user@.com is false. Run the tests after implementing." |
+| "Make the dashboard look better." | "Here is a screenshot of the design. Implement it, take a screenshot of the result, compare it with the original, list the differences and fix them." |
+| "The build is failing." | "The build fails with this error: [paste]. Fix the root cause, don't suppress the error, and verify the build succeeds." |
+
+Checks can be a test suite, a build exit code, a linter, a script that compares output to a fixture, or a browser screenshot. As a PM, the most valuable check you can write is an **acceptance test derived from your PRD**: take each must / must not line and turn it into a test case.
+
+Make the check harder to skip as your trust grows:
+
+1. **In the prompt:** "run the check and iterate until it passes."
+2. **For a whole session:** set the check as a `/goal` condition; a separate evaluator re-checks it every turn.
+3. **As a hard gate:** a Stop hook runs your check as a script and blocks the turn from ending until it passes.
+4. **With a second opinion:** a reviewer subagent tries to refute the result (see below).
+
+Ask Claude to **show evidence**, not just assert success: the test output, the command it ran, a screenshot. Reviewing evidence is faster than re-running everything yourself.
+
+## Keep the context clean
+
+| Situation | Do |
+| --- | --- |
+| Switching to an unrelated task | `/clear` to reset context |
+| You've corrected Claude twice on the same issue | `/clear` and rewrite the prompt with what you learned. A clean session with a better prompt usually beats a long one full of corrections |
+| Long session, but the history matters | `/compact Focus on the API changes`, or add compaction rules to `CLAUDE.md` ("always preserve the list of modified files and test commands") |
+| Claude went down the wrong path | `Esc` to stop; `Esc` twice or `/rewind` to restore earlier conversation and code state |
+| Quick side question you don't want in context | `/btw` |
+| Research that would read many files | "Use subagents to investigate X." They explore in their own context and return a summary |
+| Task spans several days | `claude --continue` or `claude --resume`; name sessions with `/rename` |
+
+Checkpoints only track edits made through Claude's file-editing tools, not changes from shell commands. They are not a replacement for git.
+
+## Reuse what works: skills, hooks, subagents
+
+- **Skills** are reusable instructions in `.claude/skills/<name>/SKILL.md`. Good PM examples: a "write release notes from merged PRs" skill, a "turn this PRD section into test cases" skill. Invoke with `/skill-name`. Set `disable-model-invocation: true` for workflows with side effects that you want to trigger manually.
+- **Hooks** run a script at a fixed point in Claude's workflow and are **deterministic**, unlike `CLAUDE.md` rules, which are advisory. Use them for things that must happen every time: lint after every edit, block writes to a folder. You can ask Claude to write the hook: "Write a hook that runs the linter after every file edit." Run `/hooks` to see what's configured.
+- **Subagents** are specialized assistants with their own tools and context, defined in `.claude/agents/`. A security reviewer or an accessibility reviewer is a good first one.
+
+## Review with fresh eyes
+
+The agent that wrote the code is biased toward it. Use an independent check before you count work as done:
+
+- A **separate session or a subagent** reviews the diff with fresh context. The built-in `/code-review` skill reviews the current diff for bugs.
+- To check against your plan, write the prompt yourself:
+
+```text
+Use a subagent to review the diff against PLAN.md. Check that every
+requirement is implemented, the listed edge cases have tests, and nothing
+outside the task's scope changed. Report gaps that affect correctness or
+the stated requirements, not style preferences.
+```
+
+Tell the reviewer to flag only real gaps. A reviewer asked to find problems will usually report some, and chasing every one leads to over-engineering.
+
+## From laptop to deployed
+
+Prototypes become products when they go through the same path as any other code.
+
+1. **Commit small and often** on a branch, never directly to `main`.
+2. **Open a pull request** (`create a pr` works, and `gh` must be installed and logged in). Ask Claude to summarize the risks in the description.
+3. **CI** runs your tests and linter. Add them if they don't exist yet; Claude can write a first workflow file.
+4. **Secrets** live in your hosting platform's environment variables, never in the repo. Add an `.env.example` with the variable names only.
+5. **Deploy to a preview or staging URL first** (hosting platforms such as Vercel create a preview for each pull request), click through the flows, then promote.
+6. **Know how to roll back** before you deploy: the previous deployment, a revert commit or a feature flag.
+7. **Add basic monitoring:** error tracking, uptime, and for AI features, logging of inputs and outputs so you can run error analysis (see the evals guide).
+
+### What to hand to engineers
+
+Hand over when the work touches authentication, payments, personal data, infrastructure or anything with security implications. Make the hand-off easy:
+
+- The `SPEC.md` and `PLAN.md` that the work followed
+- A pull request with a clear description, tests and screenshots
+- A list of **what you didn't verify** and what you're unsure about
+- The commands to run the project locally
+
+## Going faster
+
+- **Parallel sessions with worktrees:** `claude --worktree feature-auth` creates an isolated checkout on its own branch. Run another with a different name in a second terminal and the edits won't collide.
+- **Non-interactive mode:** `claude -p "prompt"` runs a one-shot task that you can use in scripts and CI, for example `git log --oneline -20 | claude -p "summarize these recent commits"`.
+- **Fan-out:** for a repetitive change across many files, have Claude list the files, then loop over them with `claude -p`. Test on two or three files first, then run the full set. The `/batch` command can split a change across multiple subagents in separate worktrees.
+- **Scheduled tasks:** recurring jobs such as a weekly dependency check or a morning pull-request review can run on a schedule. Write the prompt with an explicit definition of success and what to do with the result, because an unattended run can't ask questions.
+
+## Failure patterns to avoid
+
+| Pattern | What happens | Fix |
+| --- | --- | --- |
+| **Kitchen-sink session** | One session mixes unrelated tasks and the context fills with noise | `/clear` between tasks |
+| **Correcting over and over** | Failed attempts pollute the context | After two failed corrections, `/clear` and write a better prompt |
+| **Over-long `CLAUDE.md`** | Real instructions get lost | Prune hard; turn "must always" rules into hooks |
+| **Trust, then verify never** | Plausible code that misses edge cases | Always provide a test, build or screenshot check; if you can't verify it, don't ship it |
+| **Unscoped investigation** | "Look into this" reads hundreds of files | Scope it narrowly or use a subagent |
+| **Agent grading its own work** | Blind spots stay blind | Fresh-context reviewer |
+
+## A five-day starter project
+
+1. **Day 1:** Pick a small internal tool you would actually use (a feedback tagger, a metrics page, a changelog generator). Run the interview prompt and produce `SPEC.md`.
+2. **Day 2:** In a new session, use plan mode to produce `PLAN.md`; edit it with `Ctrl+G`.
+3. **Day 3:** Implement with tests and a build check. Commit often.
+4. **Day 4:** Run a fresh-context review against the plan; fix real gaps only.
+5. **Day 5:** Open a pull request, deploy to a preview, write a short `README` and the "what I didn't verify" list. Ask one engineer to review.
+
+## Sources
+
+- [Best practices for Claude Code, Anthropic docs](https://code.claude.com/docs/en/best-practices)
+- [Common workflows, Anthropic docs](https://code.claude.com/docs/en/common-workflows)
+- [Extend Claude Code (skills, hooks, MCP, subagents, plugins), Anthropic docs](https://code.claude.com/docs/en/features-overview)
+
+Command names, shortcuts and defaults come from the current Anthropic documentation at the time of writing. Check the docs for your installed version.

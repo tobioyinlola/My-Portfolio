@@ -1,33 +1,183 @@
 ---
 title: "Roadmapping under uncertainty"
-excerpt: "[EXCERPT: how to plan when model capabilities and user needs both shift.]"
+excerpt: "How to plan AI products when model capability, cost and user behavior all shift: name your unknowns, use confidence horizons, run staged bets with kill criteria, and gate decisions on evals."
 tags:
+  - "AI PM"
   - "Roadmapping"
-  - "Discovery"
 accent: forest
-date: "2025-01-01"
+date: "2026-10-21"
 ---
 
 ## The short version
 
-<Placeholder>
-Two or three sentences: who this is for and what they will be able to do afterwards.
-</Placeholder>
+A date-and-feature roadmap assumes you know what you will build and how long it takes. With AI products you often don't know whether the model can do the task well enough, what it will cost at scale, or how users will react. Promising "smart summaries in Q3" before you've tested whether summaries are good enough is a promise about something you can't control.
 
-## Step by step
+The fix is not "no roadmap". It is a roadmap that is **honest about confidence**:
 
-1. [Step one]
-2. [Step two]
-3. [Step three]
+1. Commit to **resolving named unknowns by a checkpoint**, not to features by a date.
+2. Show items by **confidence horizon** (Now, Next, Later) rather than by calendar.
+3. Treat uncertain work as **staged bets with kill criteria**.
+4. Use **evals as the gate** that moves an item from Next to Now.
+5. Plan for **model churn** (new versions, deprecations, price changes) as a recurring task, not a surprise.
+
+## Why AI roadmaps break (and what that means for the plan)
+
+Five kinds of uncertainty show up, and each needs a different response.
+
+| Uncertainty | The question | How you reduce it |
+| --- | --- | --- |
+| **User value** | Will people use and trust this? | Discovery, prototypes, fake-door and Wizard of Oz tests (see the discovery guide) |
+| **Technical feasibility** | Can the current models do this well enough? | A feasibility spike with a graded sample, then an eval set |
+| **Quality at scale** | Does it hold up on messy real inputs and edge cases? | Error analysis on production traces; shadow mode |
+| **Cost and latency** | Does the unit economics work at the volume we expect? | Measure tokens per task at p95; test cheaper models and caching |
+| **Platform and regulatory change** | Will a model, price, API or rule change under us? | Abstraction layer, eval-gated upgrades, dated dependencies |
+
+A roadmap that treats all five as one thing ("risk") can't tell you what to do next. Naming each one can.
+
+## Step 1: List the unknowns before the features
+
+Start with a table of the things you don't know. Every roadmap item should point to at least one row.
+
+| Unknown | Type | Test | Owner | Decide by | If it fails |
+| --- | --- | --- | --- | --- | --- |
+| Can the model extract the fields we need from messy documents? | Feasibility | 30-document graded spike | [PM + Eng] | [Date] | Narrow to the document types that pass; keep a manual step for the rest |
+| Will users accept AI drafts, or rewrite them? | User value | 2-week concierge test with 10 users | [PM] | [Date] | Re-scope to suggestions, not drafts |
+| Is cost per task under budget at p95 input size? | Cost | Token measurement on the eval set | [Eng] | [Date] | Route easy cases to a smaller model; shorten context |
+
+If you can't fill in "if it fails", you're not ready to commit resources to that item.
+
+## Step 2: Pick a format that expresses confidence
+
+The **Now-Next-Later** format, created by Janna Bastow at ProdPad as an alternative to timeline roadmaps, fits AI work well because its columns are confidence horizons rather than dates:
+
+- **Now:** work the team is actively doing. Validated enough to build.
+- **Next:** problems you are validating. Evidence is partial.
+- **Later:** strategic bets you are considering. Hypotheses, not commitments.
+
+Add two small things to make it work for AI:
+
+1. A **confidence tag** on each card: *validated* (feasibility and user value tested), *prototyped* (works in a demo), or *hypothesis* (an idea).
+2. The **unknown it depends on**, linked to your table from Step 1.
+
+Example (illustrative):
+
+| Horizon | Item | Confidence | Depends on | Exit gate |
+| --- | --- | --- | --- | --- |
+| Now | Ticket summaries for agents | Validated | Eval set passes ship gate | Ship to 10 percent of agents |
+| Now | Admin permissions for AI features | Validated | None | Release |
+| Next | Auto-drafted replies | Prototyped | Draft acceptance rate in the concierge test | Move to Now if at least [X] percent of drafts are sent with minor edits |
+| Later | Proactive churn alerts | Hypothesis | Data access; feasibility spike | Run a 2-day spike; revisit next month |
+
+## Step 3: Split the roadmap into two tracks
+
+A pattern many practitioners recommend is **dual-track planning**:
+
+- **Deterministic track:** work whose effort and result you can estimate: integrations, permissions, billing, UI, infrastructure, analytics. Plan with normal confidence.
+- **Model track:** work whose result depends on model behavior: quality improvements, new AI capabilities, prompt and retrieval changes. Plan with **ranges and checkpoints**, not exact dates.
+
+This stops uncertain work from dragging down the credibility of the predictable work, and it gives stakeholders an honest picture of which parts of the plan can move.
+
+## Step 4: Write bets with kill criteria
+
+For each model-track item, use a **staged bet** instead of a feature line.
+
+```text
+BET: Auto-drafted replies for support agents
+Hypothesis: Agents will send at least [X]% of drafts with minor edits
+            (under [Y] seconds of editing).
+Stage 1 (2 weeks): feasibility spike on 40 graded tickets.
+  Continue if: passes rubric on at least [X]% and zero critical failures.
+  Kill or narrow if: below [Z]% after two prompt/context iterations.
+Stage 2 (3 weeks): shadow mode on live traffic; humans compare.
+  Continue if: agreement with human replies at least [X]%.
+Stage 3 (4 weeks): beta with 10% of agents.
+  Continue if: acceptance rate and complaint rate meet gates.
+Budget: [N] engineer-weeks total; stop after Stage 1 if it fails.
+Owner: [Name]. Review date: [Date].
+```
+
+The important parts are the **numbers you decided in advance** and the **budget cap**. Teams that don't set kill criteria keep investing because they've already invested.
+
+## Step 5: Replace feature promises with outcome ranges
+
+When someone asks "when will it be done?", the honest answer for model-track work is a range with a condition.
+
+| Weak | Better |
+| --- | --- |
+| "Smart summaries ship in Q3." | "We will know whether summaries meet the quality bar by [date]. If yes, beta follows within 4 weeks; if not, we narrow scope." |
+| "GPT-level quality by launch." | "Target: [X] percent pass rate on the eval set. Current: [Y] percent. Next checkpoint: [date]." |
+| "It will reduce handling time by 30 percent." | "Hypothesis: reduces handling time. Concierge test shows [measured result] on [N] users. Next measurement: [date]." |
+
+Avoid promising a specific model capability by a date. Model release timing and behavior are outside your control.
+
+## Step 6: Make evals the gate
+
+Evals turn "we think it's ready" into a rule.
+
+- **Next to Now:** a feasibility spike or eval run passes the threshold in the PRD.
+- **Now to released:** the ship gate and regression gate pass, and cost per task is inside the budget.
+- **Now back to Next:** a critical failure mode appears in production that the eval set doesn't cover. Add cases, fix, re-gate.
+
+Write the gates on the roadmap card itself, so stakeholders see the criteria, not just the status. Build the eval set early; practitioners suggest having a first set of a few dozen graded examples from the first sprint.
+
+## Step 7: Plan for model churn
+
+Models change under you: new versions appear, old ones are retired, prices and rate limits move, and behavior shifts between versions. Treat this as recurring work.
+
+1. **Put an abstraction layer between your product and the model provider** (one place where the model name, parameters and prompt are configured), so a swap is a config change plus an eval run.
+2. **Pin versions** in production; don't float on "latest".
+3. **Keep a dated dependency list:** model deprecation dates, pricing changes, regulatory deadlines. Put the dates on the roadmap as milestones.
+4. **Run a model review each quarter:** run the full eval suite on one or two candidate models, compare pass rate, latency and cost per task, then decide. Upgrade because the numbers improved, not because the model is new.
+5. **Plan for cost curves:** what is the plan if the price halves (more use cases become viable) or doubles (which features are cut)?
+6. **Track regulation as a dependency.** AI regulation timelines are still moving in 2026 and 2027; if you sell into regulated markets, treat the relevant deadlines as dated items with an owner, not background noise.
+
+## Step 8: Communicate and review
+
+### The one-page stakeholder view
+
+```text
+GOAL (outcome, not features): [e.g. reduce first-response time for support]
+
+NOW (committed):    [items] - confidence: validated
+NEXT (validating):  [items] - decision date: [date] - gate: [criterion]
+LATER (bets):       [items] - not committed
+
+BIGGEST UNKNOWNS: 1) [..] by [date]  2) [..] by [date]
+WHAT COULD CHANGE THIS PLAN: [model change / cost / regulation]
+LAST UPDATED: [date]   NEXT REVIEW: [date]
+```
+
+### Cadence
+
+- **Weekly:** update the unknowns table and the status of active bets (15 minutes).
+- **Monthly:** re-forecast the model track; move cards between horizons; kill or narrow stalled bets.
+- **Quarterly:** model review and strategy check.
+
+State a **demotion rule** in advance: an item that hasn't met its gate by its decision date moves down a horizon or gets cut, no negotiation needed.
 
 ## Common mistakes
 
-<Placeholder>
-The two or three errors you see most often, and how to avoid them.
-</Placeholder>
+- **Dates for model-track work.** They become promises you can't keep and erode trust in the whole plan.
+- **A roadmap of features with no outcome.** Tie each item to an outcome and a metric.
+- **No kill criteria.** Bets without exit rules become commitments.
+- **Putting everything in "Now".** If everything is committed, nothing was prioritized.
+- **Treating the eval set as a one-time task.** Without it, you can't tell whether a model change helped or hurt.
+- **Hiding uncertainty from stakeholders.** Showing confidence levels openly builds more trust than a confident plan that slips.
 
-## Template
+## A two-hour exercise
 
-<Placeholder>
-Link or paste the template, checklist or prompt that readers can copy.
-</Placeholder>
+1. Write down your current roadmap items (10 minutes).
+2. For each, answer: *what do we not know, and how would we find out?* Fill the unknowns table (30 minutes).
+3. Tag each item validated, prototyped or hypothesis; re-sort into Now, Next, Later (20 minutes).
+4. For the top two uncertain items, write a staged bet with kill criteria (40 minutes).
+5. Draft the one-page stakeholder view and send it to one stakeholder for feedback (20 minutes).
+
+## Sources
+
+- [Now-Next-Later roadmap, ProdPad](https://www.prodpad.com/glossary/now-next-later-roadmap/)
+- [Product Roadmap for AI Products (2026), IdeaPlan](https://www.ideaplan.io/blog/product-roadmap-for-ai-products)
+- [AI product roadmap 2026: the training loop, Lazarev](https://www.lazarev.agency/articles/ai-product-roadmap)
+- [AI Product Roadmap Template, Institute of AI PM](https://www.institutepm.com/knowledge-hub/ai-roadmap-template)
+- [Demystifying evals for AI agents, Anthropic Engineering](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+
+Most 2026 writing on AI roadmaps comes from practitioner blogs and vendors rather than peer-reviewed research. The structure above is a synthesis; statistics you may see quoted (such as how many AI projects fail) are frequently unsourced, so don't use them to justify a plan.

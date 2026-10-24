@@ -1,0 +1,194 @@
+---
+title: "Discovery for AI products: test before you build"
+excerpt: "A weekly discovery routine adapted for AI: story-based interviews, an opportunity map, assumption tests, and Wizard of Oz and concierge prototypes that test demand and feasibility fast."
+tags:
+  - "AI PM"
+  - "Discovery"
+accent: cobalt
+date: "2026-10-20"
+---
+
+## The short version
+
+Discovery for AI products has the same goal as any discovery: find out what people need and whether your solution works, before you spend months building. Two things make it harder:
+
+1. **People misjudge what AI can do.** Ask "would you use an AI that does X?" and you get polite yes answers based on a vague picture. The hard part is confirming real demand, not writing code.
+2. **Feasibility is part of discovery.** "Can the model do this well enough on real inputs?" is a question you can test in days, with a prototype, long before you build anything production-grade.
+
+So the routine has three loops that run in parallel every week:
+
+- **Talk** to customers about what they actually did (not what they'd like).
+- **Map** what you hear into opportunities, and pick one.
+- **Test assumptions** with the cheapest prototype that could prove you wrong.
+
+## Foundation in five lines
+
+You need only these ideas.
+
+- **Start from an outcome**, not a feature: "reduce time to first response", not "add a chatbot".
+- **Opportunities are customer needs, pain points and desires** you hear in interviews. Solutions come later.
+- **An opportunity solution tree** is the map: one outcome at the top, opportunities below it, solutions below those, and assumption tests below each solution. It keeps you from jumping to the first idea.
+- **Test assumptions, not ideas.** An idea contains many assumptions; test the riskiest one first.
+- **Make contact weekly.** Discovery is a habit of small, frequent interactions with customers, not a quarterly project. Teresa Torres's *Continuous Discovery Habits* is the standard reference for this routine.
+
+## Loop 1: Talk (story-based interviews)
+
+### Who and how often
+
+Aim for **at least one customer conversation per week**, 20 to 30 minutes each, with people from the segment you serve. Recruit continuously: add a short invite to your product, ask support and sales for introductions, and schedule recurring slots so it doesn't depend on motivation.
+
+### The interview rule: ask for stories, not opinions
+
+| Weak question (opinion) | Strong question (story) |
+| --- | --- |
+| "Would you use an AI assistant for reports?" | "Tell me about the last time you had to write a report. Walk me through it from the start." |
+| "How often do you do X?" | "When was the last time you did X? What was going on?" |
+| "What features do you want?" | "What did you do next? What happened after that?" |
+| "Do you like this idea?" | "Show me how you handle it today." (then watch) |
+
+Past behavior predicts future behavior better than stated intent.
+
+### A 25-minute script
+
+```text
+1. Context (3 min): Tell me about your role and what a typical week looks like.
+2. The story (12 min): Think of the last time you [did the task]. When was it?
+   Walk me through it. What was the first thing you did? What next?
+   - Where did you get stuck? What did you do about it?
+   - What tools, people, files were involved?
+   - What did it cost you (time, money, stress)?
+3. Workarounds (5 min): What have you tried to make this easier?
+   Why did/didn't that work?
+4. AI specifics (3 min): Have you used AI for this? Show me what you did.
+   What did you check or fix afterwards? What would you never hand over?
+5. Close (2 min): Who else should I talk to? Can I follow up?
+```
+
+Section 4 matters for AI products. It surfaces **trust boundaries** (what they won't delegate), **verification habits** (what they double-check), and **past disappointments**.
+
+### After each interview (10 minutes)
+
+Fill in a one-page snapshot while it's fresh:
+
+- The story in three sentences
+- Opportunities you heard, in the customer's words
+- Workarounds they use today
+- Quotes worth keeping
+- Surprises
+
+Synthesize across interviews every three or four conversations, updating your map. You can use AI tools to transcribe and cluster notes, but **read the raw transcripts yourself**, because the details a summary drops are often the insight.
+
+## Loop 2: Map (opportunity solution tree)
+
+Build it in a doc or a whiteboard. Four levels:
+
+```text
+OUTCOME (one): Reduce time to first response from [X] to [Y]
+  |
+  +-- OPPORTUNITY: "I can't tell which tickets are urgent"
+  |     +-- SOLUTION IDEAS: [triage score] [auto-labels] [urgent inbox]
+  |     +-- ASSUMPTION TESTS: [...]
+  |
+  +-- OPPORTUNITY: "I rewrite the same replies every day"
+        +-- SOLUTION IDEAS: [saved replies] [AI drafts]
+        +-- ASSUMPTION TESTS: [...]
+```
+
+How to use it:
+
+1. **Compare opportunities**, not solutions. Which is most frequent, most painful, and closest to your outcome? Pick one target.
+2. For the chosen opportunity, **generate at least three solutions** (include a non-AI one). Teams that start with "let's use AI" often miss a simpler fix.
+3. **Pick a solution only after** you've listed its assumptions.
+
+## Loop 3: Test assumptions
+
+### Step 1: list the assumptions
+
+For any AI solution, assumptions fall into five buckets. Write at least one in each.
+
+| Bucket | Question | Example assumption |
+| --- | --- | --- |
+| **Desirability** | Do they want it? | Agents will read an AI summary instead of the full thread |
+| **Usability** | Can they use it? | Users will correct a wrong summary instead of abandoning it |
+| **Feasibility (model)** | Can the AI do it well enough? | The model can extract the right fields from messy tickets at the quality bar |
+| **Feasibility (data/tech)** | Can we get the inputs and run it? | We have access to the ticket history and it is clean enough |
+| **Viability** | Does it work for the business? | Cost per task stays under [X] at our volume; legal is OK with the data flow |
+
+### Step 2: map and rank
+
+Plot each assumption on two axes: **how important** (if it's wrong, the idea fails) and **how little evidence** you have. The top-right corner (important, no evidence) is where you test first.
+
+### Step 3: write a test card
+
+```text
+ASSUMPTION: Agents will use an AI draft if it is right at least [X]% of the time.
+TEST: Wizard of Oz with 8 agents for 1 week. A human (you) writes drafts
+      behind the scenes using the model plus your edits.
+METRIC: share of drafts sent with minor edits; time per ticket
+PASS IF: at least [X]% sent with minor edits and time per ticket drops by [Y]
+FAIL IF: agents ignore drafts or rewrite most of them
+DECISION: pass -> build a pilot; fail -> try the "saved replies" solution
+```
+
+### Step 4: pick the cheapest test that could prove you wrong
+
+| Method | What it is | Best for | Watch out for |
+| --- | --- | --- | --- |
+| **Interview probes and storyline** | Show a sketch or a scripted flow; ask them to walk through how they'd use it | Early desirability, finding trust boundaries | People are polite; prefer behavior over opinions |
+| **Fake door** | A button or landing page for a feature that doesn't exist yet; measure clicks and sign-ups | Demand | Clicks aren't value; follow up with interviews; be transparent afterwards |
+| **Wizard of Oz** | A human secretly does the "AI" work behind a real-looking interface | Desirability and usability with real behavior; deciding what the AI should do | Not scalable; can hide how hard the AI part is; keep ethics and consent in view |
+| **Concierge** | You deliver the service manually and the customer knows it | Learning the workflow and the value in depth | Time intensive; the process may not automate cleanly |
+| **Model prototype** | A notebook or small script that runs the model on 20 to 50 real inputs; hand-grade | Model feasibility and cost | Easy to cherry-pick; use a fixed, representative sample |
+| **Clickable prototype with a real model** | A thin UI wired to a real model API (tools like Claude Code make this fast; see the shipping guide) | Usability, latency and the "it feels wrong" moments | Don't mistake a polished demo for validated value |
+
+In a **Wizard of Oz** test the customer believes the automation exists; in a **concierge** test they know a person is doing the work. Both are quick to build and feel like a real product to the user, which is why they are valuable, and why they need honest handling of consent and data.
+
+### Step 5: combine a desirability test with a feasibility test
+
+For AI features, run them together:
+
+1. **Feasibility first, cheap:** run the model on 20 real inputs and grade. If it fails, you've saved weeks.
+2. **Desirability with the real thing:** show real model outputs (even if curated) to real users and watch them react. A made-up demo hides the model's flaws; a real output shows whether the flaws matter.
+3. **Quantify the bar:** write down the quality threshold at which users keep using it, and compare it with your graded results.
+
+## AI-specific discovery questions
+
+Add these to your list.
+
+- **Verification:** What do they check, and how long does checking take? If checking costs as much as doing the task, there's no value.
+- **Cost of being wrong:** What happens if the output is wrong and they don't notice? High-stakes tasks need human review; low-stakes ones can be more automated.
+- **Trust and control:** What do they want to approve, edit or undo? Where do they want to stay in charge?
+- **Data:** What information is needed, who owns it, and what can't leave their systems?
+- **Language and context:** Do inputs vary by language, jargon or format in ways your sample doesn't show?
+- **Frequency:** Is this a daily task or a once-a-quarter task? That determines whether people will learn a new workflow.
+
+## A weekly rhythm
+
+| Day | Activity |
+| --- | --- |
+| Monday | Review the tree; pick this week's riskiest assumption; schedule interviews |
+| Tuesday | Interview 1; fill the snapshot |
+| Wednesday | Build or run the assumption test (prototype, spike or fake door) |
+| Thursday | Interview 2 (show the prototype if you have one); synthesize |
+| Friday | Decide: pass, fail or inconclusive. Update the tree. Share a three-line update with the team |
+
+Keep engineers and designers in the loop; the best discovery is done by the **product trio** (PM, designer, engineer) together, so feasibility questions get asked in the interview and not afterwards.
+
+## Common mistakes
+
+- **Asking "would you use this?"** Ask for the last time it happened.
+- **Skipping the non-AI option.** Sometimes a template or a rule solves it.
+- **Testing the idea, not the assumption.** "Build it and see" tests everything at once and teaches you little.
+- **Demo-ware.** A polished prototype on cherry-picked inputs proves nothing about real inputs.
+- **Letting an AI summarize all the interviews** and never reading one. You lose the detail that changes decisions.
+- **Treating discovery as a phase.** The assumptions keep changing as the models and users do.
+
+## Sources
+
+- [Continuous Discovery Habits, summary](https://evansamek.substack.com/p/summary-continuous-discovery-habits) and [Product Talk](https://www.producttalk.org/) (Teresa Torres's site: opportunity solution trees, weekly interviews, assumption testing)
+- [Product discovery guide, IdeaPlan](https://www.ideaplan.io/guides/product-discovery-guide) (Wizard of Oz vs concierge, assumption mapping)
+- [Inspired, 2nd edition: Wizard of Oz prototypes, O'Reilly](https://www.oreilly.com/library/view/inspired-2nd-edition/9781119387503/c49.xhtml) (Marty Cagan)
+- [AI product and customer discovery, talk abstract](https://sessionize.com/s/seunzone/ai-product-and-customer-discovery/179592) (people misjudge what AI can do)
+- [How to use AI for product discovery: a practical guide, Plane](https://plane.so/blog/how-to-use-ai-for-product-discovery-a-practical-guide)
+
+Most 2026 material on discovery for AI products is practitioner writing and vendor content. The routines above combine the established continuous-discovery method with AI-specific tests; adapt the cadence and sample sizes to your market.
