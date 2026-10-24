@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --paper: #f4ede0;
+  --surface: #fffaf0;
+  --ink: #16130f;
+  --muted: #5b5247;
+  --line: #16130f;
+  --cobalt: #2340e0;
+  --mustard: #f5b50a;
+  --terracotta: #b53a10;
+  --forest: #1d6b43;
+  --lilac: #c9b6f2;
+  --cream: #fff8e7;
+  --grain-opacity: 0.07;
+  --nav-h: 4.5rem;
+}
+
+[data-theme="dark"] {
+  --paper: #15120e;
+  --surface: #211c16;
+  --ink: #fff8e7;
+  --muted: #b8ad9d;
+  --line: #fff8e7;
+  --grain-opacity: 0.1;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-cobalt: var(--cobalt);
+  --color-mustard: var(--mustard);
+  --color-terracotta: var(--terracotta);
+  --color-forest: var(--forest);
+  --color-lilac: var(--lilac);
+  --color-cream: var(--cream);
+  --font-display: var(--font-display), "Arial Black", system-ui, sans-serif;
+  --font-sans: var(--font-body), system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  scroll-padding-top: 6rem;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+/* Paper grain: one fixed layer, never repainted on scroll. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("/grain.png");
+  background-size: 128px 128px;
+}
+
+::selection {
+  background: var(--mustard);
+  color: #16130f;
+}
+
+:focus-visible {
+  outline: 3px solid var(--cobalt);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+[data-theme="dark"] :focus-visible {
+  outline-color: var(--mustard);
+}
+
+/* ---- Stamped, notched label edges ---- */
+.stamp {
+  --n: 6px;
+  clip-path: polygon(
+    var(--n) 0, calc(100% - var(--n)) 0, calc(100% - var(--n)) var(--n), 100% var(--n),
+    100% calc(100% - var(--n)), calc(100% - var(--n)) calc(100% - var(--n)), calc(100% - var(--n)) 100%,
+    var(--n) 100%, var(--n) calc(100% - var(--n)), 0 calc(100% - var(--n)), 0 var(--n), var(--n) var(--n)
+  );
+}
+
+/* ---- Pressed pill buttons ---- */
+.btn {
+  --depth: 4px;
+  box-shadow: 0 var(--depth) 0 var(--line);
+  transition: box-shadow 80ms ease, transform 80ms ease;
+}
+.btn:active {
+  transform: translateY(var(--depth));
+  box-shadow: 0 0 0 var(--line);
+}
+
+/* ---- Pixel-art checkerboard ---- */
+.checker {
+  background-image:
+    linear-gradient(45deg, currentColor 25%, transparent 25%, transparent 75%, currentColor 75%),
+    linear-gradient(45deg, currentColor 25%, transparent 25%, transparent 75%, currentColor 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+}
+
+/* ---- Patterned speech-bubble fills ---- */
+.pattern-dots {
+  background-image: radial-gradient(rgba(22, 19, 15, 0.16) 1.5px, transparent 1.6px);
+  background-size: 10px 10px;
+}
+.pattern-stripes {
+  background-image: repeating-linear-gradient(45deg, rgba(22, 19, 15, 0.1) 0 6px, transparent 6px 12px);
+}
+.pattern-grid {
+  background-image:
+    linear-gradient(rgba(22, 19, 15, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 19, 15, 0.12) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+@keyframes drift {
+  from { transform: translate3d(-30vw, 0, 0); }
+  to { transform: translate3d(120vw, 0, 0); }
+}
+@keyframes page-in {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: none; }
+}
+.page-in {
+  animation: page-in 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-in { animation-name: page-in-fade; }
+}
+@keyframes page-in-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+  50% { transform: translate3d(0, -12px, 0) rotate(calc(var(--r, 0deg) + 3deg)); }
+}
+
+/* Custom pixel cursor only where a fine pointer exists. */
+@media (hover: hover) and (pointer: fine) {
+  html.pixel-cursor,
+  html.pixel-cursor a,
+  html.pixel-cursor button,
+  html.pixel-cursor [role="button"],
+  html.pixel-cursor label,
+  html.pixel-cursor summary {
+    cursor: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Prose for MDX ---- */
+.prose-site {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.prose-site > * + * {
+  margin-top: 1.1em;
+}
+.prose-site h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-top: 2.6em;
+  scroll-margin-top: 6rem;
+}
+.prose-site h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 1.35rem;
+  margin-top: 1.8em;
+}
+.prose-site ul,
+.prose-site ol {
+  padding-left: 1.4em;
+}
+.prose-site ul { list-style: square; }
+.prose-site ol { list-style: decimal; }
+.prose-site li + li { margin-top: 0.4em; }
+.prose-site a {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--cobalt);
+}
+.prose-site strong { font-weight: 700; }
+.prose-site blockquote {
+  border-left: 4px solid var(--mustard);
+  padding-left: 1em;
+  color: var(--muted);
+}
+.prose-site code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+.prose-site table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.prose-site th,
+.prose-site td {
+  border: 2px solid var(--line);
+  padding: 0.5em 0.75em;
+  text-align: left;
+  vertical-align: top;
+}
+.prose-site th {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: color-mix(in srgb, var(--mustard) 40%, transparent);
+}
+
+/* Native dialogs live in the top layer, above the custom cursor: give back the system cursor there. */
+html.pixel-cursor dialog,
+html.pixel-cursor dialog * {
+  cursor: auto !important;
+}
