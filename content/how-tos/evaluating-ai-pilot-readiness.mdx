@@ -1,0 +1,50 @@
+---
+title: "Evaluating AI Pilot Readiness"
+excerpt: "Turn a promising AI demo into a pilot decision with held-out evaluations, quality gates, application controls, and recovery paths."
+tags:
+  - "AI PM"
+  - "Evals"
+accent: forest
+date: "2026-11-06"
+---
+
+The scenarios and numbers in this guide are illustrative.
+
+## Publishable article
+
+A polished AI demo answers one question. Can the feature work on this example? A pilot decision needs evidence about where it works, where it fails, and whether users can recover when it gets something wrong.
+
+Take an AI recruiter evidence brief. A recruiter asks it to find support for “at least two years of Django experience.” The CV says the candidate built APIs using Django but gives no dates. A credible draft should cite that passage and say the duration needs review. If it invents a duration, the error can shape how the recruiter reads the rest of the application.
+
+I’d test the feature on permitted examples the team hasn’t used to tune it. Include well-structured CVs, ambiguous dates, sparse experience descriptions, and files that should trigger a fallback. Reviewers should agree on what counts as supported evidence, a harmless formatting issue, and a critical failure. Report supported claims alongside coverage, or how often the feature finds evidence when it exists. Looking at either metric alone can hide a failure mode.
+
+Before launch, I’d also test the application controls. Can a reviewer inspect the source? Can the product block access to another application? What happens after a timeout? Agree on the failures that block the pilot, who can pause it, and how to verify the fix.
+
+## Team playbook
+
+1. Product and domain reviewers define acceptable behavior, critical failures, and a scoring rubric with examples. Document the intended human review step.
+
+2. QA and Data create a held-out evaluation set, score key input types separately, and record model and prompt versions. Report counts and investigate disagreements.
+
+3. Engineering and the release owner test permissions, fallback, and the feature flag. Sign off on the gates and assign an on-call owner before exposing the feature.
+
+| Example gate | Evidence and decision |
+| --- | --- |
+| Evidence quality | Illustrative targets of 98% supported claims and 90% coverage on answerable criteria. Agree sample sizes by input type before testing. Hold if a gate fails. |
+| Critical failures | Zero observed unauthorized disclosures or materially fabricated evidence in the evaluation and challenge cases. Any confirmed case blocks or pauses exposure. |
+| Operational readiness | Verify latency at expected load, error recovery, source access, and the manual path. Set a cost ceiling before the pilot. |
+
+### Copyable decision format
+
+```text
+Metric [ ]
+Threshold [ ]
+Test cases and minimum sample [ ]
+Owner [ ]
+Result [ ]
+Go or hold decision [ ]
+```
+
+## Practice exercise
+
+The brief supports 98 of 100 surfaced claims but finds evidence for only 35 of 50 answerable criteria. No critical failures were observed. Make a pilot decision against the example gates and specify what to retest.

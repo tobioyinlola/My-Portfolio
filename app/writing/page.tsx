@@ -8,7 +8,7 @@ import { howToCards } from "@/components/sections/howtos-section";
 
 export const metadata: Metadata = pageMetadata({
   title: "Writing: how-to library",
-  description: "Practical how-tos on AI product management, PRDs, roadmapping, evals and shipping with Claude Code.",
+  description: "Practical guides and team playbooks on AI feature PRDs, roadmap bets, MVP scope, AI evaluation, adoption and launch decisions.",
   path: "/writing",
   kicker: "Writing",
 });

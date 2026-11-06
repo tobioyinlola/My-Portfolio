@@ -1,0 +1,48 @@
+---
+title: "Cutting MVP Scope"
+excerpt: "Define the smallest usable flow that tests your hypothesis, with essential controls and evidence for the next investment decision."
+tags:
+  - "MVPs"
+accent: mustard
+date: "2026-11-06"
+---
+
+The scenarios and numbers in this guide are illustrative.
+
+## Publishable article
+
+A team building an AI meeting assistant might put transcription, summaries, action items, search, and integrations into its first release. Those features form a convincing demo. They also make it harder to tell which part of the product solved a problem.
+
+Suppose discovery shows that project leads already record meetings but spend Friday chasing decisions that were never written down. I’d turn that into a hypothesis. If leads receive an editable draft of decisions and action items soon after a meeting, they’ll share the recap sooner and spend less time reconstructing what happened.
+
+The smallest useful release could accept an existing transcript, draft a recap, and let the lead edit and copy it. Transcription and integrations can wait while the team tests whether the draft is worth using. Editing stays because people need to correct an owner or due date. Where the transcript leaves a detail open, the draft marks it for review.
+
+I’d agree on the evidence before building. How long does it currently take to share a recap? How many drafts require major corrections? Do leads come back for a second meeting? A strong MVP gives the team enough signal to decide what to improve, what to add, and whether the idea deserves more investment.
+
+## Team playbook
+
+1. Product writes one target user, trigger, pain point, and hypothesis. Measure the current workflow or assign an owner to establish the baseline.
+
+2. Design and Engineering map the shortest usable flow. For each proposed requirement, ask whether the user needs it to complete the job, the team needs it to test the hypothesis, or the feature needs it to operate within agreed controls.
+
+3. Product and Data define the pilot cohort, outcome, guardrail, and decision date. Review time to share, the share of meetings with a recap, substantive corrections, and repeat use.
+
+| Keep in the MVP | Defer until there is evidence |
+| --- | --- |
+| Paste a permitted transcript, draft decisions and action items, mark uncertainty, edit, and copy. | Native recording, a searchable meeting archive, and automatic posting to team channels. |
+| Use an agreed manual fallback when a transcript is missing or generation fails. | Additional input formats and integrations after learning where users encounter friction. |
+
+### Copyable decision format
+
+```text
+Hypothesis [ ]
+Smallest usable flow [ ]
+Essential controls [ ]
+Deferred scope [ ]
+Pilot evidence [ ]
+Next decision [ ]
+```
+
+## Practice exercise
+
+Five pilot users already have transcripts. The team can build editing or auto-posting before the pilot. Choose what ships, define one outcome and one guardrail, and explain how you will measure both against the current workflow.
