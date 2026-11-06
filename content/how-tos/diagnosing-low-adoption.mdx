@@ -1,0 +1,49 @@
+---
+title: "Diagnosing Low Adoption"
+excerpt: "Find where eligible users drop out, combine funnel evidence with interviews, and test the strongest explanation."
+tags:
+  - "Adoption"
+accent: terracotta
+date: "2026-11-06"
+---
+
+The scenarios and numbers in this guide are illustrative.
+
+## Publishable article
+
+Imagine a team launches a saved-search alert for a recruitment marketplace. Few users set one up. The first suggestion is to add a bigger banner. Before changing the interface, I’d find the point where users stop moving toward value.
+
+Start with the eligible audience. A recruiter filling a recurring role may want alerts every week. A recruiter filling a one-off vacancy may have no reason to return. Combining both groups can make the feature look weak even if it serves the intended audience well.
+
+Then map the funnel. Who ran a qualifying search, saw the alert option, saved an alert, received a relevant result, and returned? If users rarely see the option, discoverability is a reasonable hypothesis. If they save alerts and stop opening them, look at result relevance and notification frequency. Interview a few people who dropped out at the same step and ask what they expected to happen.
+
+Choose an experiment that addresses the strongest explanation. If people see the option but abandon a long setup form, test a prefilled alert using their current filters. Measure completed setup and the share of users who return after receiving a relevant alert. A setup increase alongside a spike in opt-outs would change how I interpret the result.
+
+## Team playbook
+
+1. Data defines the eligible cohort and funnel events, validates instrumentation, and reports counts by segment. Use a fixed cohort and window for comparisons.
+
+2. Product and Design review the biggest meaningful drop-off. Pair event data with user interviews or usability sessions and rank plausible causes by evidence.
+
+3. Product and Data agree on a hypothesis, comparison, decision window, and guardrail. Change one identifiable part of the flow and review downstream value before expanding.
+
+| Question | Example measure |
+| --- | --- |
+| Can users find it? | Users who saw the alert option divided by users who ran an eligible search. |
+| Can users activate it? | Users who saved an alert divided by users who saw the option. |
+| Do users get ongoing value? | Users who return via an alert within the defined window divided by users who received one. Review relevance and opt-outs alongside it. |
+
+### Copyable decision format
+
+```text
+Eligible segment [ ]
+Drop-off [ ]
+Evidence [ ]
+Hypothesis [ ]
+Experiment [ ]
+Success metric and guardrail [ ]
+```
+
+## Practice exercise
+
+Of 400 eligible recruiters, 300 saw the alert option, 60 saved one, 45 received an alert, and nine returned through it. Pick one funnel step to investigate. Name the evidence you need before changing the flow and the metric you would track.

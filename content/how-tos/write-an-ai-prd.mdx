@@ -1,232 +1,290 @@
 ---
 title: "How to write a PRD for an AI feature"
-excerpt: "A copy-paste PRD template for LLM features: behavior specs you can test, an eval plan, failure modes, cost and latency budgets, and a rollout with kill criteria."
+excerpt: "A practical guide to AI feature PRDs: discovery, MVP scope, testable requirements, evaluation, pilot decisions, and a copyable template, illustrated with a recruiter evidence brief."
 tags:
   - "AI PM"
   - "PRDs"
 accent: mustard
-date: "2026-10-24"
+date: "2026-11-06"
 ---
 
-## The short version
+*A practical guide for junior intermediate and senior product managers*
 
-A normal PRD says what the feature does. An AI PRD also has to say **how good is good enough, how you will measure it, what happens when the model is wrong, and what each answer is allowed to cost**. The output of an LLM changes from run to run, so "the button saves the file" style acceptance criteria are not enough. You replace them with evaluation criteria: a test set, a rubric, and a pass-rate threshold.
+A product requirements document (PRD) describes a user problem, the outcome the team wants to achieve, and the behavior the team agrees to deliver. For a feature that uses artificial intelligence (AI), it also defines what the system can rely on, what it should do when evidence is missing, and how the team will judge whether the feature is ready to launch.
 
-If you only do four things, do these:
+Imagine you are building a recruiter evidence brief. A recruiter opens a CV, compares it with a role’s hiring criteria, and writes a first review note. The proposed feature finds relevant passages and drafts the note. The recruiter checks the evidence and decides what to save. We’ll use this example to turn a product idea into a PRD.
 
-1. Write down the user's **current workaround** and its baseline (time, cost, error rate). Your threshold comes from that, not from a gut feeling.
-2. Run a **two-hour feasibility spike** before you commit to a spec.
-3. Write the behavior as **must / must not** statements that a test can check.
-4. Put the **failure behavior** (what the user sees when the model is wrong or unavailable) in the PRD as a first-class requirement.
+## Use this guide at your level
 
-## What actually changes when the feature is probabilistic
-
-You don't need theory here, just the five differences that change how you write.
-
-| Classic PRD | AI feature PRD |
+| Experience level | What to practice |
 | --- | --- |
-| Acceptance criteria: pass or fail | Evaluation criteria: pass rate over a test set (a distribution, not a single result) |
-| Bugs are reproducible | Failures are statistical; you track failure modes and their rates |
-| Cost is mostly fixed infrastructure | Every request has a variable cost (tokens in and out, tool calls) |
-| Latency is a performance detail | Latency depends on model, prompt size and output length; it is a product decision |
-| Error states are rare edge cases | Wrong-but-confident output is a normal state you must design for |
+| Junior PM | Write the problem statement, map the user journey, draft a user story, and turn one requirement into Given, When, Then acceptance criteria. |
+| Intermediate PM | Translate discovery into MVP scope. Define edge cases, instrument the workflow, design an evaluation set, and plan the pilot. |
+| Senior PM | Challenge the investment case, decide which risks and trade-offs are acceptable, and agree on the launch gates, owners, and rollback plan. |
 
-Practitioner guides from 2026 agree on the core move: replace pass/fail acceptance criteria with statistical assertions, for example "routes at least 90 percent of queries correctly on the test set". Treat the specific numbers you see in blog posts as examples, not standards. Your thresholds come from your users' workaround and your risk level.
+## What you will build
 
-## Step 0: run a feasibility spike before writing the spec
+1. A problem statement grounded in discovery and a measurable baseline.
 
-Do this before the PRD, not after. It takes about two hours and it stops you from specifying something the current models can't do.
+2. An MVP scope and a product hypothesis that connect the feature to a user outcome.
 
-1. **Collect 20 real inputs.** Use real tickets, documents or queries, not ones you invent. Include short ones, long ones, messy ones and a few that should be refused.
-2. **Run a baseline prompt** on a capable current model. Keep the prompt simple. You are testing the task, not your prompt skills.
-3. **Grade each output by hand** as pass or fail, and write one sentence on why each failure failed.
-4. **Decide.**
+3. A user flow and a set of functional, AI behavior, and non-functional requirements.
 
-| Baseline result | What it usually means | What to do |
-| --- | --- | --- |
-| Mostly passes | The task is feasible | Write the PRD; the work is reliability, UX and cost |
-| Fails in a few repeating ways | Fixable with better context, retrieval, examples or a workflow step | Write the PRD with those failure modes as explicit risks |
-| Fails almost everywhere | The task may be too hard for current models, or the inputs lack the information needed | Narrow the scope, change the task, or add a human step before you commit |
+4. An evaluation plan, an experiment, and a release decision with named owners.
 
-Keep the 20 graded examples. They become the seed of your eval set (see the evals guide in this library).
+5. A PRD you can share with design, engineering, QA, data, and operations.
 
-## The PRD template (copy this)
+## How the PRD fits with other product documents
 
-```text
-# [Feature name] PRD
+A roadmap shows the sequence of outcomes or bets the team plans to pursue. A PRD specifies a particular feature. A technical design explains how the system will implement it. The backlog breaks the work into items the team can deliver. Link these documents so readers can move from a product decision to its implementation and tests.
 
-## 1. Problem and user
-Who is the user, what are they trying to get done, what is painful today?
+The recruiter example, baseline, and thresholds in this guide are illustrative. Set your own targets after measuring the current workflow, estimating feasibility, and reviewing risk.
 
-## 2. Current workaround and baseline
-How do they do it now? Time, cost, error rate. Source of the numbers.
+## Discover the Problem Before Defining the Feature
 
-## 3. Success metrics
-Product: [adoption, task completion, time saved, retention]
-Model quality: [pass rate on eval set, by failure mode]
-Guardrail metrics: [complaint rate, escalation rate, cost per task]
+### Identify the user and their job
 
-## 4. Behavior spec
-MUST:        [testable statements]
-MUST NOT:    [testable statements]
-SHOULD:      [nice to have, ranked]
-Out of scope: [explicit list]
+Start with product discovery, the work of finding out which problems matter and where the current experience falls short. Use interviews to understand why people struggle, observation to see what they actually do, and analytics to estimate frequency. In the PRD, distinguish evidence from assumptions and assign an owner to validate important unknowns.
 
-## 5. Eval plan
-Eval set: source, size, who labels it, how it is versioned
-Rubric: binary pass/fail per criterion, with definitions
-Thresholds: ship gate and regression gate
-Cadence: on every prompt/model/retrieval change; weekly production sample
+A target segment is the group you are designing for first. A persona describes a representative user and their context. A Jobs to Be Done (JTBD) statement captures the progress that person wants to make in a situation. A user story translates one part of that job into a product capability the team can design and test.
 
-## 6. Failure modes and fallbacks
-Top failure modes -> how detected -> what the user sees -> who is notified
-
-## 7. Guardrails, data and privacy
-What data the model sees, what it may never see or output, prompt injection
-and tool-permission rules, retention, regions
-
-## 8. Cost and latency budget
-Max cost per task, p50 and p95 latency, what happens when exceeded
-
-## 9. UX states
-Loading, partial, success, low confidence, refusal, error, offline,
-edit/undo, feedback (thumbs + reason)
-
-## 10. Rollout and kill criteria
-Stages, audience, success gates, rollback trigger, owner
-
-## 11. Assumptions and open questions
-What must be true for this to work? How and by when do we test each one?
-```
-
-## How to fill in each section
-
-### 2. Current workaround and baseline
-
-Your threshold should come from what users do today. If a user spends 8 minutes pulling key points out of a long document, a summary feature has to save a meaningful part of that time while staying accurate enough that they don't re-read the original. If it saves 3 minutes but they still check everything, you built a worse product.
-
-Write the baseline as a sentence with a source: "Support agents spend about [X] minutes per ticket on first-pass summary (source: [timing study / interviews / logs])."
-
-### 4. Behavior spec: make every line testable
-
-The most common failure in AI PRDs is vague behavior statements. If you can't write a test case for a sentence, rewrite the sentence.
-
-| Vague | Testable |
+| Product term | Recruiter example |
 | --- | --- |
-| "Summaries should be accurate." | "Every claim in the summary is supported by the source text. A reviewer finds zero unsupported claims in at least [X] percent of eval cases." |
-| "Should sound professional." | "Uses no slang, no emojis, and second person only. Passes the tone rubric (3 binary checks)." |
-| "Handles bad inputs gracefully." | "If the input has no relevant content, the response says so in one sentence and does not invent a summary." |
-| "Don't leak private data." | "Never outputs email addresses or phone numbers from the input. Zero leaks across the adversarial set." |
-| "Be fast." | "p95 end-to-end latency under [X] seconds for inputs up to [N] words." |
+| Target segment | Recruiters reviewing applications for technical roles using a shared hiring rubric. |
+| JTBD | When I review a technical application, I want to locate verifiable evidence for each role criterion so I can write a review another recruiter can understand. |
+| Problem statement | Recruiters switch between CVs and role criteria while writing notes. Relevant passages can be hard to locate, and a reviewer may have to reopen the CV to verify a note. |
+| User story | As a recruiter, I want each draft evidence item to link to its source so I can verify it before saving my review. |
 
-Write at least as many **MUST NOT** lines as **MUST** lines. Most of the product risk lives there.
+### Establish the baseline and outcome
 
-### 5. Eval plan: the section that replaces acceptance criteria
+A baseline is a measurement of the current experience. For this example, time the existing workflow from opening an eligible application to saving the first review note. Capture completion and abandonment alongside time. Separate role and CV types if their complexity differs. Write down how you measured, when, and across how many cases.
 
-- **Start small, and write it before building.** A first eval set of 10 to 30 cases is enough to drive the spec; plan to grow it to hundreds from production data. Cover short, long, technical, ambiguous and badly formatted inputs, plus cases that should be refused.
-- **Use binary rubric items** (pass or fail with a written definition), not a 1 to 5 score. They are easier to agree on and easier to act on.
-- **Name who labels** and how disagreements are settled. Two domain experts should usually reach the same verdict on a case; if they don't, the case or the rubric is unclear.
-- **Set two gates.** A ship gate ("at least [X] percent pass on the eval set, zero critical failures") and a regression gate ("no drop of more than [Y] points when the prompt or model changes").
-- **Say when evals run.** On every prompt, model or retrieval change, plus a scheduled sample of real production traffic.
-- **Say how you judge:** code checks where possible (valid JSON, required fields), an LLM judge with a rubric for the rest, and human review to calibrate the judge and cover high-stakes cases.
+An outcome is a change for the user or business. A feature is a capability delivered to help produce that change. Here, shipping the draft button is an output of the team’s work. Reducing first-review time while maintaining evidence quality is the intended outcome.
 
-### 6. Failure modes and fallbacks
+**Example product hypothesis.** If eligible recruiters can review a draft with links to CV evidence, median time to save a first review will fall from an illustrative eight minutes to six in the pilot, while completion and evidence quality meet the agreed guardrails.
 
-List the top five ways this feature can go wrong. For each, fill in a row:
+**Senior review.** Estimate how many reviews are eligible, how often recruiters face this problem, and whether the time saved justifies build, inference, review, and support costs. Specify what evidence would make the team stop investing.
 
-| Failure mode | Example | How we detect it | What the user sees | Owner |
-| --- | --- | --- | --- | --- |
-| Hallucinated detail | Summary cites a date that is not in the source | Judge check "claims supported by source"; user flag | Source quotes shown beside each claim; one-click report | [PM / Eng] |
-| Wrong-language reply | User writes in one language, reply is in another | Language detection check | Reply regenerated; fall back to the user's language | [Eng] |
-| Model or provider outage | Timeouts, 5xx | Error rate and timeout monitor | "Couldn't generate right now," manual path stays usable | [Eng] |
-| Prompt injection | Document text says "ignore your instructions" | Adversarial test set; output filters | Feature refuses, and the incident is logged | [Eng / Security] |
-| Over-confident wrong answer | Plausible but incorrect output | Sampled human review | Confidence cues, easy edit, never auto-send high-stakes output | [PM] |
+## Prioritize Scope and Choose the AI Approach
 
-The rule of thumb: **never let the AI be the only path.** The user should always be able to continue the task without it.
+### Compare ways to solve the problem
 
-### 8. Cost and latency budget
+A structured rubric could reduce time spent formatting notes. Keyword search could surface exact terms in a CV. An AI model could help identify varied descriptions of the same skill and draft a short evidence note. Test the smallest combination that addresses the observed bottleneck. Record the alternatives considered, the rationale for the chosen approach, and the assumptions that still need testing.
 
-Write a per-task budget and compute it, don't guess it.
+A proof of concept tests a specific feasibility question, such as whether the system can locate a sentence in a parsed CV. A prototype helps test the interaction, such as whether recruiters can understand a draft and open its citations. A minimum viable product (MVP) is the smallest usable version that lets you test the product hypothesis with real users.
 
-```text
-cost per task = (input tokens x input price) + (output tokens x output price)
-                + any tool, search or retrieval costs
-```
+### Define the MVP and its boundaries
 
-Look up the current per-token prices on your provider's pricing page when you do the math, because prices change. Then:
+| Priority | Example scope and rationale |
+| --- | --- |
+| Must have | Generate on request using one authorized English-language, text-readable CV and an approved role rubric. Show evidence status and source links. Support editing, manual review, and explicit save. |
+| Should have | Let the recruiter flag individual evidence items. Include this in the pilot if feedback can be reviewed and routed without delaying the core workflow. |
+| Later | Support scanned documents, additional languages, and other application sources after evaluating each new input type. |
+| Outside the pilot | Candidate scoring, ranking, automatic rejection, application-stage changes, and candidate messaging. |
 
-1. Measure the **average and the 95th percentile** of input and output tokens on your eval set. The long inputs set your worst case.
-2. Multiply by expected volume per user per month. Compare it with what the user pays you (or the value of the time saved).
-3. Write the budget into the PRD: "Max [X] cents per task at p95. If the estimate exceeds the budget, we first shorten context, then route simple cases to a smaller model, then cut scope."
+### Use prioritization to explain the decision
 
-Two decisions every AI PRD should make explicit:
-- **Which model for which step.** Simple classification and routing steps often run well on smaller, cheaper models; reserve the strongest model for the hard step.
-- **What users see while they wait.** Streaming the answer, showing progress, or running in the background all change perceived latency. Pick one on purpose.
+MoSCoW groups work into Must have, Should have, Could have, and Won’t have for this release. RICE compares candidate investments using reach, impact, confidence, and effort. Either can make trade-offs visible. Mandatory controls and dependencies still need to be satisfied even when their direct reach appears small.
 
-### 10. Rollout and kill criteria
+**Dependency.** A prerequisite the team needs to deliver the feature. Here, the document parser must preserve stable source locations before the product can show working citations.
 
-Roll out in stages, each with an exit gate:
+**Assumption.** Something the plan currently treats as true. Here, recruiters can open linked passages quickly enough for verification to fit their workflow.
 
-1. **Shadow mode:** the model runs, users don't see it. You compare against humans.
-2. **Internal dogfood:** your own team uses it for real work.
-3. **Small beta:** 1 to 5 percent or named customers, with feedback buttons.
-4. **General availability** with monitoring and a kill switch.
+**Constraint.** A limit the solution must respect. Here, a draft can draw evidence only from the authorized CV attached to the current application.
 
-Write the **kill criteria** before launch, for example: "Roll back if the critical-failure rate on sampled traffic exceeds [X] percent, or if cost per task exceeds [Y] for two consecutive days."
+**Senior review.** Agree on the scope of model authority before estimating the work. In this example, the model proposes text. The application enforces permissions and valid states. The recruiter reviews and saves the result.
 
-## Worked example (illustrative)
+## Write the User Flow and Requirements
 
-This is a condensed example of a filled-in PRD for a made-up feature, so you can see the level of detail. The numbers are placeholders to show format, not recommendations.
+### Map the main path and recovery paths
 
-```text
-Feature: Ticket summary for support agents
+A user journey describes the user’s experience across the broader task. A user flow describes the steps and branches in a particular interaction. For the evidence brief, the main path is to open the application, request a draft, inspect the source, edit the note, and save. Specify the loading state and what the recruiter can do while generation runs.
 
-2. Baseline: agents spend about [X] min per ticket reading the thread.
-   Target: agent reads summary, opens thread only when needed.
+Document the edge cases with equal care. A readable CV with no relevant evidence gets “Evidence not found.” A CV that mentions the skill without proving the required duration gets “Needs review.” An unreadable file or timed-out request offers manual review. A change to the CV or rubric marks the draft stale and requires regeneration or manual review before saving a current note.
 
-4. MUST   include: customer's issue, what was already tried, current status
-   MUST   cite the message each fact came from
-   MUST NOT state anything not present in the thread
-   MUST NOT include payment card numbers or passwords
-   MUST   say "Not enough information" for threads under 2 messages
+### Separate three types of requirements
 
-5. Eval: 40 labeled threads (10 long, 10 messy, 10 multi-language,
-   10 adversarial). Rubric: 5 binary checks.
-   Ship gate: at least [X]% pass, zero payment-data leaks.
-   Regression gate: no drop above [Y] points on any change.
+**Functional requirements.** Describe what users or the system can do. For example, open a cited passage, edit the draft, or save the note.
 
-6. Failure -> fallback: if generation fails or times out after [N] s,
-   show the raw thread; summary button stays visible.
+**AI behavior requirements.** Describe the sources, output fields, acceptable responses, and when to abstain. For each criterion, return a status and cite the exact supporting passage when evidence is found. An abstention is a deliberate response when available information cannot support a conclusion.
 
-8. Budget: max [X] cents per summary at p95; p95 latency under [N] s.
+**Non-functional requirements.** Describe how well the feature must operate. Specify performance, reliability, accessibility, security, and cost. For example, make the brief and source links keyboard-accessible and return a usable draft within the agreed time at expected load.
 
-10. Rollout: shadow 1 week -> internal agents 2 weeks -> 10% of agents.
-    Kill if sampled critical failures exceed [X]% or cost breaches budget.
-```
+### Make acceptance criteria observable
 
-## Common mistakes
+Acceptance criteria are conditions a requirement must satisfy. Given describes the starting state. When describes the trigger. Then describes the expected behavior. Add the expected recovery path when relevant.
 
-- **Specifying the model instead of the behavior.** The PRD should survive a model swap. Name the quality bar, not the vendor.
-- **No "must not" list.** Risks are hidden in what the feature is forbidden to do.
-- **A single accuracy number.** One average hides the 5 percent of cases that cause the most harm. Report by failure mode and by input type.
-- **Evals written after launch.** Then the thresholds follow what the product happens to do rather than what users need.
-- **Ignoring the cost of the long tail.** The p95 input is what blows your budget.
-- **Letting the AI be the only path.** Always keep a non-AI way to finish the task.
+| ID and priority | Acceptance criteria |
+| --- | --- |
+| R1 · Must · Check access | Given a recruiter cannot access a CV, when they request a draft for it, then generation is blocked and no CV content is returned. |
+| R2 · Must · Handle uncertainty | Given a CV mentions Django but provides no duration, when the brief assesses a two-year Django criterion, then it shows “Needs review,” cites the mention, and leaves duration unspecified. |
+| R3 · Must · Preserve control | Given a recruiter edits the draft, when they select Save, then their edited note is saved once and the application stage stays the same. |
+| R4 · Must · Offer a fallback | Given no usable draft is returned within 20 seconds, when the request times out, then the UI explains what happened and keeps manual review available. |
 
-## Do this this week
+Tie each requirement ID to its design, test, and release evidence. This traceability helps the team see what needs to change when a requirement changes.
 
-1. Pick one AI feature you own or want to propose.
-2. Run the 20-example feasibility spike (Step 0) and keep the graded results.
-3. Fill in sections 2, 4 and 6 of the template from those results.
-4. Write the eval plan (section 5) and share the 20 graded examples with an engineer. If you two disagree on any grade, fix the rubric before writing more.
-5. Compute the cost per task for the p95 input and put the budget in the doc.
+## Define Data Inputs and AI Behavior
 
-## Sources
+### Write an input and output contract
 
-- [How to Write a PRD for AI Features (2026), IdeaPlan](https://www.ideaplan.io/blog/how-to-write-prd-for-ai-features)
-- [The eval-first PRD, SFAI Labs](https://sfailabs.com/guides/the-eval-first-prd-why-your-spec-should-include-test-cases-on-day-one)
-- [AI PRD template, ProductMap](https://www.productmap.io/blog/ai-prd-template)
-- [Demystifying evals for AI agents, Anthropic Engineering](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
-- [Building effective agents, Anthropic](https://www.anthropic.com/research/building-effective-agents) (use the simplest approach that works; model routing for cost)
+Define which inputs are accepted, who can supply or access them, and how current they must be. In the example, the input is one authorized, text-readable English CV and the current approved rubric. Engineering and product must agree on file limits, parsing failures, source identifiers, and how versions are checked at save time.
 
-Thresholds, sample sizes and percentages in this guide are starting points drawn from practitioner writing, not industry standards. Validate them against your own users and risk level.
+Define each output field and its allowed values. A brief item has a criterion ID, evidence status, optional excerpt and source location, and a draft note. The status can be “Evidence found,” “Evidence not found,” or “Needs review.” When the status is “Evidence found,” the excerpt and location are required. If the system finds ambiguous evidence, it may show an excerpt with “Needs review.”
+
+**Grounding.** Connecting a generated claim to an approved source that supports it. A citation shows where to check. The evaluation must verify that the passage actually supports the claim.
+
+**Hallucination.** Output presented as fact without adequate support. For example, a brief invents “three years of Django” when the CV mentions the skill but gives no duration.
+
+**Human in the loop.** A person reviews or approves a consequential step. Here, recruiters can verify passages, correct or dismiss a draft, and explicitly save a note. Their approval is a separate product action.
+
+### Assign controls to the system
+
+Enforce authorization and workflow permissions in the application. Treat uploaded content as data. Test prompt injection, where text inside a CV tries to change the model’s instructions or obtain unrelated data. In the example, the application restricts retrieval to the current authorized CV and gives the model no access to application-stage controls.
+
+For an agent that can take actions, add an action inventory. For each action, specify permission scope, confirmation, retry behavior, how duplicates are prevented, and whether the result can be undone. Define which actions require human approval.
+
+### Specify data handling and versioning
+
+Map collection, processing, storage, logging, vendor handling, and deletion. Identify the owner for each. Decide what recruiters can see, what analytics can collect, and how access changes apply to saved drafts. Have the appropriate reviewers approve the data flow before pilot exposure.
+
+Record the model, prompt, rubric, and evaluation set versions used in testing. The technical design can document the implementation. The PRD should say which behavior, quality thresholds, and controls must still hold when a version changes.
+
+## Measure Product Value and AI Quality
+
+### Give each metric one clear job
+
+| Metric type | Recruiter example |
+| --- | --- |
+| Primary KPI | Median active time from opening an eligible application to saving the first review note. Compare AI access with the manual workflow during the same pilot. |
+| Adoption and funnel | Track eligible applications opened, draft requested, draft returned, source opened, and review saved. Adoption is applications with a draft request divided by eligible applications opened in the AI group. |
+| AI quality | Grounded claim rate is the number of surfaced factual claims supported by their source divided by all surfaced factual claims. Track coverage as answerable criteria correctly supported divided by all answerable criteria. |
+| Operational | p95 latency is the time within which 95% of measured successful requests finish. Pair it with usable drafts within the timeout divided by all eligible requests. Track cost per usable draft, including failed calls and retries. |
+| Guardrail | A metric that protects against an unacceptable side effect. Track the share of eligible first reviews completed, substantive corrections, and any confirmed unauthorized disclosure or materially fabricated evidence. |
+
+### Build an evaluation plan
+
+An evaluation set is a collection of input cases with expected behaviors or scoring instructions. Start with permitted examples that resemble real usage. Include sparse CVs, varied role criteria, ambiguous dates, and unusual but supported formats. Reserve a held-out set for release evaluation. Keep cases used to tune the feature separate.
+
+Create a scoring rubric with examples of a pass, a minor issue, and a critical failure. Have reviewers independently score a sample and resolve disagreements. Report counts, denominators, and results by relevant input slice. Track correct abstentions on ambiguous cases alongside coverage so a system cannot score well simply by refusing to help.
+
+**Acceptance test.** Given the Django CV with no dates, verify that the feature returns “Needs review.”
+
+**Release gate.** Across the agreed evaluation set, require at least 98% supported claims and 90% coverage on answerable criteria, with zero observed critical failures. These are illustrative thresholds. Record the minimum sample, owner, and response if any threshold is missed.
+
+### Test the product hypothesis in a pilot
+
+Define the eligible population, assignment method, exposure, time window, and decision rule before launch. Where feasible, randomly assign comparable recruiters or applications to AI access or manual review. Choose the assignment unit to limit spillover. Analyze eligible cases by assigned group, including cases where recruiters choose manual review. Compare time among completed reviews and report completion and abandonment so the speed metric is interpretable.
+
+## Make the Release Decision
+
+### Move from evaluation to exposure
+
+| Stage | Evidence and decision |
+| --- | --- |
+| Offline evaluation | QA and the evaluation owner review held-out results, edge cases, and regressions. Fix and retest any failed release gate before pilot exposure. |
+| Internal trial | Engineering checks access controls, telemetry, expected load, manual fallback, and the feature flag. Design verifies that states and controls are usable. |
+| Limited pilot | Product and recruiting operations agree on eligibility, duration, comparison groups, and minimum exposure. Monitor review time, completion, quality, and incidents. |
+| Expansion | The launch approver reviews outcome and guardrail results, unresolved risks, support readiness, and evidence by cohort. Record the decision to expand, hold, or pause. |
+
+### Write the decision rule before the pilot
+
+**Expand.** In this example, product reviews a two-week pilot after at least 100 eligible reviews per group. Expansion requires a median of six minutes or less in the AI group and at least 25% improvement versus manual review. Before the pilot, agree on the allowed change in completion, the cost ceiling, and how to sample pilot drafts to verify that quality holds. The sample count is an illustrative exposure minimum. Use baseline variability and the decision at stake to size an actual experiment.
+
+**Hold.** If exposure is too low, important slices lack evidence, or quality falls short without a critical incident, keep the rollout limited. Assign a follow-up owner and retest before expansion.
+
+**Pause and recover.** A confirmed critical incident triggers a pause. The on-call owner disables generation using the feature flag, routes pending requests to manual review, and coordinates review of affected drafts. Retest the fix before the launch approver authorizes resumption.
+
+### Assign ownership and record risks
+
+A feature flag lets the team turn functionality on or off for selected cohorts. A rollback restores a previously approved version or behavior. State who can use each control, what happens to pending work, and who checks whether previously generated outputs are affected.
+
+A risk register tracks what could go wrong, the impact, the mitigation, and the owner. For example, if an old draft could be saved against a new rubric, engineering owns version checks and QA owns the stale-draft test. Use a decision log for trade-offs, approvals, and open questions, each with a due date.
+
+**Senior review.** Decide whether the workflow improvement justifies incremental cost, human review time, and ongoing support. Specify which residual risks the launch approver accepts and which trigger a pause.
+
+## Sample PRD for a Recruiter Evidence Brief
+
+*A concise example you can use as a model*
+
+**Owner and decision.** Recruiting Product owns the PRD. Design, Engineering, QA, Data, and Recruiting Operations review it. The decision requested is approval to prepare a limited pilot after the offline gates and data review are complete.
+
+**Problem and baseline.** Technical recruiters switch between a CV and a role rubric to find verifiable evidence for their first review. The example assumes an eight-minute median per completed review. Product and Data will verify the baseline and completion rate before pilot enrollment.
+
+**Hypothesis and scope.** An editable draft with source links will reduce the AI group’s median first-review time to six minutes or less while meeting quality and completion guardrails. V1 supports authorized, text-readable English CVs and approved rubrics. Recruiters make hiring decisions and explicitly save their own notes.
+
+**Core behavior.** The recruiter requests a draft from an application. For every criterion, the draft returns “Evidence found,” “Evidence not found,” or “Needs review.” A supported item links to the exact CV passage. The recruiter can edit, dismiss, or save the note. Generation failure or timeout offers manual review. CV or rubric changes mark an existing draft stale.
+
+**Acceptance criteria.** Given a CV mentions Django without dates, when the recruiter requests a draft for a role requiring two years of Django, then the brief shows “Needs review,” cites the mention, and leaves duration unspecified. An unauthorized request returns no CV content. Saving an edited note does not change the application stage.
+
+**Quality and operations.** QA evaluates held-out CVs and challenge cases. Proposed gates are 98% supported claims, 90% coverage on answerable criteria, and zero observed critical failures. Engineering targets p95 of 12 seconds for successful drafts at pilot load, with at least 95% of eligible requests yielding a usable draft within 20 seconds.
+
+**Pilot and release decision.** Product and Data run a two-week comparison against manual review with an illustrative minimum of 100 eligible reviews per group. Expansion requires at least 25% lower median time and six minutes or less in the AI group, plus the agreed guardrails. A confirmed unauthorized disclosure or materially fabricated evidence triggers a pause and review.
+
+**Open decisions and dependencies.** Before pilot enrollment, Data finalizes the assignment design and completion guardrail. Engineering verifies parser quality and sets a cost ceiling with Product. Privacy and security reviewers approve data handling. Recruiting Operations confirms the pilot cohort and appoints a launch approver.
+
+This summary shows the decisions a PRD needs to capture. Attach the full requirement list, test rubric, data-flow review, and measurement plan for delivery.
+
+## Copyable AI Feature PRD Template
+
+*Replace the bracketed fields with your feature details*
+
+### Product case
+
+**Feature and decision.** [Feature name, product owner, reviewers, status, version, decision requested, decision date]
+
+**Discovery and baseline.** [Target segment, JTBD, current journey, problem statement, evidence, baseline, known gaps]
+
+**Hypothesis and KPI.** [Capability, measurable outcome, baseline, target, cohort, window, guardrails]
+
+**Alternatives and scope.** [Why AI, options considered, rationale, MVP, priorities, exclusions, dependencies]
+
+### Feature behavior
+
+**User flow.** [Trigger, loading, result, review, completion, empty states, failure, manual fallback]
+
+**Input and output contract.** [Allowed sources, permissions, formats, fields, status values, citations, freshness and editability]
+
+**Requirements and acceptance criteria.** [ID, priority, requirement type, user story if relevant, Given, When, Then, test reference]
+
+**Human oversight and data controls.** [Model authority, approval, access, data flow, retention, deletion, audit and misuse cases]
+
+### Evaluation and delivery
+
+**Metrics and instrumentation.** [Metric definition, formula, denominator, event or source, cohort, window, owner, target]
+
+**Evaluation plan.** [Dataset, sampling, slices, scoring rubric, reviewer calibration, critical failures, versioning]
+
+**Pilot and release gates.** [Stages, comparison design, exposure, thresholds, approver, expand or hold decision]
+
+**Operations and rollback.** [Latency, availability, cost, monitoring, alerts, fallback, pause trigger, restoration steps]
+
+**Risks and open decisions.** [Risk or decision, impact, mitigation or options, owner, due date, status]
+
+### Run a short PRD review
+
+- Ask design to show the main flow and the uncertainty and error states.
+
+- Ask engineering to name which controls the application enforces and show how the manual path works.
+
+- Ask QA and data to connect each critical requirement to a test, metric, or launch gate.
+
+- Ask the launch approver to explain the evidence needed to expand and who can pause the rollout.
+
+## Product and AI Terms at a Glance
+
+| Term | Meaning in a PRD |
+| --- | --- |
+| JTBD and user story | JTBD describes the progress the user wants in a situation. A user story describes a capability that helps them make that progress. |
+| Objective and key result | An objective is a goal. A key result is measurable evidence of progress toward it. A key performance indicator (KPI) is a metric the team tracks to understand performance. |
+| Baseline and target | The baseline describes current performance. The target specifies the change the team aims to achieve. |
+| Prototype and MVP | A prototype tests an interaction or design idea. An MVP is a usable release designed to test the core product hypothesis. |
+| Edge case and fallback | An edge case is an unusual but relevant situation. A fallback is the path offered when the primary flow cannot proceed. |
+| Functional and non-functional requirements | Functional requirements describe what the feature does. Non-functional requirements define qualities such as latency, accessibility, and reliability. |
+| Acceptance criteria and release gate | Acceptance criteria define expected behavior in a testable scenario. A release gate defines the evidence required before advancing a rollout. |
+| Instrumentation and funnel | Instrumentation records product events. A funnel shows how many eligible users or attempts move through successive steps. |
+| Guardrail and rollback | A guardrail is a limit on an adverse outcome. A rollback restores a previously approved version or behavior. |
+| Grounding and abstention | Grounding ties a claim to supporting evidence. Abstention is the defined response when the system lacks sufficient evidence. |
+| Offline evaluation and pilot | Offline evaluation tests the feature on cases outside live use. A pilot gives a limited cohort access to validate the real workflow. |
+| LLM and inference | A large language model processes and generates language. Inference is a run of the model to produce a result from an input. |
+| Retrieval and RAG | Retrieval selects relevant source material. Retrieval-augmented generation gives selected material to a model as context for its response. |
+| Model drift and regression | Drift is a change over time in inputs or observed performance. A regression is a decline in previously verified behavior, often checked after a change. |

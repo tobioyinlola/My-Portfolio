@@ -1,0 +1,51 @@
+---
+title: "Making a Launch Decision"
+excerpt: "Decide whether to launch, limit, or hold a release using clear evidence, named owners, stop triggers, and a recovery plan."
+tags:
+  - "Launches"
+accent: lilac
+date: "2026-11-06"
+---
+
+The scenarios and numbers in this guide are illustrative.
+
+## Publishable article
+
+It’s Thursday afternoon. Sales has promised a Friday release, Engineering has found an intermittent failure, and Support has yet to see the workflow. People can agree that the release matters and still disagree on what “ready” means.
+
+I’d ask what we’re exposing, to whom, and what happens if it fails. In a candidate invitation workflow, a formatting defect may be manageable for a small cohort. Duplicate invitations after a retry call for evidence that sends are safe or a release that keeps sending under manual control.
+
+Compare full launch, draft-only access, and holding the release. For each option, document the user value, the risk, and the recovery plan. Ask the release owner to decide and assign each follow-up.
+
+A draft-only pilot can still test whether recruiters find the invitation workflow useful, while giving Engineering time to validate delivery. Sales can explain what the pilot includes, and Support gets a clear escalation path.
+
+## Team playbook
+
+1. Product defines the release cohort, decision owner, and criteria for full release, limited release, or hold. Share the open issues and options before the meeting.
+
+2. Engineering, QA, and Support present evidence on the highest-impact failures, rollback controls, training, and incident response. For the invitation example, test retry behavior and verify whether a send was recorded before another attempt can proceed.
+
+3. The release owner records the decision and signs off on the scope. Assign an on-call owner, a stop trigger, a communication owner, and a date for reconsideration.
+
+| Decision item | Worked example |
+| --- | --- |
+| Go condition | Full release requires verified retry behavior, support readiness, and named incident ownership. Draft-only access can proceed for the agreed cohort once tested. |
+| Stop and recover | If duplicate sends occur, disable automated sending. Review impacted invitations and coordinate any candidate communication with the operations owner. |
+| Reconsideration | Engineering retests retry behavior. Support confirms readiness. The release owner reviews the evidence before expanding access. |
+
+### Copyable decision format
+
+```text
+Decision [ ]
+Cohort [ ]
+Evidence [ ]
+Open risks [ ]
+Approver [ ]
+Stop trigger [ ]
+Recovery owner [ ]
+Review date [ ]
+```
+
+## Practice exercise
+
+QA reproduces duplicate invitations after a timeout. Sales has promised Friday access and the draft flow passes testing. Choose full release, draft-only access, or hold. Name the owner, stop trigger, and evidence required to expand.

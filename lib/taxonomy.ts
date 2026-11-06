@@ -3,8 +3,9 @@ export const howToTags = [
   "PRDs",
   "Roadmapping",
   "Evals",
-  "Shipping with Claude Code",
-  "Discovery",
+  "MVPs",
+  "Adoption",
+  "Launches",
 ] as const;
 
 export const videoSeries = ["Case study walkthroughs", "Teardowns", "How-tos", "Building in public"] as const;
