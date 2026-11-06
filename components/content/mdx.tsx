@@ -3,6 +3,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import { builtProjects } from "@/content/built";
 import { ArchDiagram } from "@/components/ui/arch-diagram";
+import { TeardownConcept, TeardownFlow } from "@/components/content/teardown-visuals";
 
 function Placeholder({ children }: { children: React.ReactNode }) {
   return (
@@ -26,7 +27,7 @@ function Diagram({ project }: { project: string }) {
   );
 }
 
-const components = { Placeholder, ArchDiagram: Diagram };
+const components = { Placeholder, ArchDiagram: Diagram, TeardownFlow, TeardownConcept };
 
 export function Mdx({ source }: { source: string }) {
   return (

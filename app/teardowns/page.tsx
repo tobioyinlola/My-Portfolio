@@ -7,7 +7,7 @@ import { teardownCards } from "@/components/sections/teardowns-section";
 
 export const metadata: Metadata = pageMetadata({
   title: "Product teardowns",
-  description: "Product teardowns with one fixed template: what it does well, where it breaks, metrics to track and how I'd improve it.",
+  description: "Senior PM deep dives into Stripe Checkout, Frappe HR and Open WebUI, with user journeys, evidence, diagrams, proposed improvements and experiment plans.",
   path: "/teardowns",
   kicker: "Teardowns",
 });
