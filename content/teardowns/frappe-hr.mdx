@@ -1,0 +1,161 @@
+---
+title: "Frappe HR: turn hiring records into hiring progress"
+product: "Frappe HR"
+industry: "HR tech"
+summary: "A senior PM teardown of the applicant-to-onboarding journey: linked records, interview evidence, stalled handoffs, permissions, and a practical next-action queue."
+metricsToTrack:
+  - "Time waiting between stages"
+  - "Feedback completion"
+  - "Day-one readiness"
+hasPrototype: false
+accent: mustard
+date: "2026-11-06"
+---
+
+A recruiter has finished scheduling interviews. The applicant record is up to date. Two interviewers have submitted feedback; one has not. The hiring manager thinks the recruiter is arranging a debrief. The recruiter is waiting for the manager's decision. Nothing is technically broken, but the candidate has heard nothing for days.
+
+That is the HR product problem I want to examine: the difference between storing the state of work and helping people move it forward.
+
+Frappe HR is a useful product for this teardown because its open source exposes the underlying workflow. We can inspect applicant, interview and onboarding records instead of guessing how an unseen system might work. **My verdict:** connected HR records provide a strong operational foundation. The product opportunity I would investigate first is making ownership, blockers and next actions visible across those records.
+
+## Scope and evidence
+
+This review examines recruitment through employee onboarding, not payroll, taxation or all of Frappe HR. I reviewed the official README and the Job Applicant, Interview and Employee Onboarding definitions on 6 November 2026. The source revision is linked at the end.
+
+The definitions demonstrate fields, links, statuses and role permissions. They do not prove how every configured deployment looks, whether a team already has a custom queue, or how users behave. This is a source-based analysis with a proposed design and research plan, not a claim that I observed a customer deployment or measured its delays. Example candidates, deadlines and performance targets below are illustrative.
+
+## Start with the operational job
+
+The buyer may be an HR leader, while the daily users include recruiters, interviewers, hiring managers and HR operations. Their jobs overlap without being identical. A recruiter needs to keep a candidate moving. An interviewer needs to provide a useful assessment quickly. A hiring manager needs enough evidence to make a decision. HR operations needs an accepted hire to be ready on the joining date.
+
+| User | Moment of value | Risk of a poor workflow |
+| --- | --- | --- |
+| Recruiter | Knows which application needs attention and who owns the next step | Repeated chasing and candidates left waiting |
+| Interviewer | Finds the right context and submits relevant evidence | Incomplete or generic feedback |
+| Hiring manager | Can inspect evidence and record a decision | Decisions made from memory or an opaque average |
+| HR operations | Converts the hire into assigned onboarding work | A completed offer but an unprepared first day |
+
+My first segment would be a small HR team coordinating several hiring managers and repeat interview panels. It has enough handoffs for the problem to matter without requiring a redesign of enterprise recruiting across many countries.
+
+Frappe's README describes a broader HR suite, including employee lifecycle, leave, expenses, performance and payroll, plus managed hosting and self-hosting options. That breadth can make continuity attractive: hiring information can connect to downstream employee operations. The commercial hypothesis is that useful continuity reduces the cost of managing separate systems. I would validate it against implementation and training effort rather than assuming a broad suite automatically wins.
+
+## Walk one application through the system
+
+<TeardownFlow product="frappe" />
+
+### 1. Capture enough applicant context
+
+The Job Applicant definition includes the applicant's name, email, job opening, resume fields, source, salary expectations and status. Status options include Open, Replied, Shortlisted, Rejected, Hold and Accepted. Linking the applicant to the opening is more useful than treating each CV as an isolated file.
+
+For a PM, the important question is what a status lets the next person do. “Hold” might mean a hiring freeze, missing information or waiting for a decision. Those require different owners and communications. I would test whether teams use a shared meaning for these statuses before adding another one.
+
+### 2. Coordinate interviews and capture evidence
+
+The Interview definition links to the applicant and opening, records the scheduled date and times, includes interviewers, and links to interview feedback. It also exposes expected and obtained average ratings and an interview summary.
+
+These are useful building blocks for a repeatable process. They do not establish that the panel is calibrated. An average rating can hide disagreement: two reviewers may use the same number for different standards. I would observe a debrief and ask the manager to explain a decision using the recorded evidence. If they reopen a separate spreadsheet to do so, the product's record is not yet the decision workspace.
+
+### 3. Make a decision without losing context
+
+A hiring decision is not simply “feedback complete.” It may require resolving contradictory evidence or collecting a missing assessment. Moving faster is valuable only if the team preserves a defensible decision and treats the candidate appropriately.
+
+This is where I would inspect ownership. Who notices that feedback is missing? Who decides whether to proceed without it? Does a scheduling change restart a deadline? The source definitions alone cannot answer those experience questions, so they become explicit research tasks.
+
+### 4. Carry the accepted hire into onboarding
+
+The Employee Onboarding definition links to a Job Offer, can fetch the applicant, and includes a joining date, an onboarding template and activities. Its boarding status can be Pending, In Process or Completed. These links create a bridge from recruiting to employee operations.
+
+The PM question is whether that bridge results in a prepared first day. Completing an onboarding record is a proxy. An employee still needs the essentials for their role, such as approved access or equipment. The team must define which activities are critical and who confirms completion; a generic percentage can hide an unassigned essential task.
+
+## What it does well
+
+### Linked records preserve continuity
+
+Applicant-to-interview and offer-to-onboarding links reduce the need to copy basic information across disconnected tools. The benefit is not only convenience. It creates the possibility of tracing an employee's joining preparation back to the relevant hiring records.
+
+The trade-off is that linked data introduces dependencies. Incorrect information can travel further, and access rules need to remain appropriate at each boundary. I would preserve these links while making their source and update behaviour understandable.
+
+### Structured workflow objects can support repeatable operations
+
+Dates, statuses, interviewer lists, feedback and onboarding templates are a foundation for consistent coordination. A team can define a process instead of reinventing a checklist for every hire.
+
+The product lesson is that structure is valuable when it removes repeated decisions. It becomes friction when people fill fields without knowing what happens next. I would assess each required input by the downstream action it enables.
+
+### Permissions are part of the workflow model
+
+The reviewed definitions declare permissions for roles such as HR User, HR Manager and Interviewer. That is evidence of an explicit permission model, not proof that a particular installation is correctly configured.
+
+A strong experience should help a reviewer access the evidence needed for their task without exposing unrelated applications or sensitive salary information. The usability and access-control reviews belong together: a queue that reveals restricted details in its preview would be a harmful improvement.
+
+## Where it breaks
+
+The following are risks inferred from the coordination problem and the reviewed data model. They need deployment observation and task testing before being labelled customer defects.
+
+| Potential seam | Example to investigate | Research or test | Likely response if confirmed |
+| --- | --- | --- | --- |
+| Status without next action | Applicant remains on Hold with no shared reason | Audit a sample of ageing applications and interview owners | Add a reason, owner and revisit date where useful |
+| Feedback without decision | All feedback exists but nobody initiates the debrief | Trace the last ten completed interview panels | Surface the next decision and its owner |
+| Average without evidence | Hiring manager relies on a score despite conflicting assessments | Observe a debrief and review how ratings are interpreted | Expose supporting evidence and disagreement |
+| Offer without readiness | Hire has a joining date but a critical task is unassigned | Inspect onboarding cases and day-one issues | Highlight critical missing ownership before the start date |
+
+I would avoid declaring that the product needs more automation before identifying the actual delay. If interviewers cannot find the form, reminders may help. If they lack time or a shared rubric, more notifications could increase noise without improving feedback.
+
+## Metrics I'd track
+
+My proposed primary measure is **elapsed waiting time from a completed step to the next owned action**, segmented by stage. Separate active review work from idle coordination where instrumentation allows it. Faster hiring alone is too broad: role complexity, candidate availability and headcount decisions all influence it.
+
+| Metric | Definition | Interpretation and guardrail |
+| --- | --- | --- |
+| Feedback timeliness | Interviews with all required feedback submitted within the team's agreed window / completed interviews requiring feedback | Pair with feedback usefulness; empty submissions should not count as quality |
+| Decision waiting time | Median and p90 from required feedback completion to recorded decision for the same interview cohort | Keep unresolved cases visible rather than analysing only quick completions |
+| Next-action coverage | Active in-scope applications with a valid owner and dated next action / active in-scope applications | Audit whether the action is meaningful, not just populated |
+| Candidate update timeliness | Candidates receiving the expected stage update within the agreed window / candidates due an update | Track complaints and incorrect messages alongside speed |
+| Day-one readiness | Joining employees with every defined critical prerequisite complete by start / eligible joining employees | Critical tasks matter more than a high average completion percentage |
+| Coordination burden | Measured follow-up time per active vacancy over the pilot | Pair analytics with a short diary study; do not infer effort from clicks |
+
+Use record IDs, stage timestamps and role-level ownership for analytics; avoid exporting resume text or salary details into general event payloads. Exclude test and withdrawn applications according to a written rule, while reporting withdrawals separately. Segment by role family and hiring manager so an easy-to-fill role does not make the intervention look stronger than it is.
+
+## How I'd improve it
+
+### First: a permission-aware next-action queue
+
+I would prototype a view over existing records before changing the core objects. It would answer: what is waiting, why, who acts next, and when? Start with three cases: incomplete panel feedback, feedback ready for a decision, and a joining employee with an unassigned critical activity.
+
+<TeardownConcept product="frappe" />
+
+Each row should open the relevant record and supporting evidence. It must obey the viewer's permissions both in the list and when opening the detail. The queue should not silently reject candidates or advance stages. A manager still owns the decision.
+
+**Acceptance scenario:** a panel has three required reviewers and one feedback entry is missing. The recruiter sees the missing-feedback state and a permitted follow-up action. The hiring manager sees the appropriate decision state once the required evidence is complete. A user without access to that application sees neither its preview nor its details. Repeated reminders are deduplicated.
+
+### Second: make status meaning explicit
+
+If research shows Hold is overloaded, add a reason and revisit condition using the product's existing configuration mechanisms where possible. Avoid multiplying stages for every exception. A temporary recruiting pause and an unresolved interview question may share a stage but need different follow-up.
+
+### Third: strengthen evidence at the decision point
+
+Once the queue solves visibility, help managers inspect the assessments behind the average. Show criteria, examples and unresolved disagreement. I would not introduce AI ranking as the first fix: it changes the risk and evaluation problem before the basic coordination issue is understood.
+
+## The pilot and decision rule
+
+Select a few comparable hiring teams and establish the current waiting-time distribution. Pilot the queue on a defined set of roles; where feasible, assign at the team level to reduce spillover from recruiters using both workflows. Keep a contemporaneous comparison because hiring activity changes over time.
+
+Agree a worthwhile reduction in waiting time using the baseline, then size the pilot accordingly. An illustrative planning goal might be a 20% reduction in median decision waiting time, but that is not a benchmark or a promised result. Completion, unresolved cases, feedback usefulness and candidate communication should remain acceptable.
+
+The HR product owner owns the intervention, engineering owns permission correctness and event integrity, and recruiting operations owns process adoption. Any confirmed exposure of an unauthorised application pauses the queue. If usage is low, inspect whether the queue is trusted and actionable before sending more notifications.
+
+## What I would take into the roadmap meeting
+
+I would bring a sample of ageing applications, a map of their handoffs, a prototype of the queue, and a small set of measured delays. That evidence makes the investment question concrete: can better coordination recover enough recruiter and manager time to justify the view and its ongoing maintenance?
+
+The reusable lesson is that a system of record becomes useful through the decisions it helps people complete. Start with the handoff, preserve the evidence, and make accountability visible without replacing human judgement.
+
+**Try it:** take five applications stuck in the same stage. Write the last completed action, next owner, missing evidence and next date for each. If different blockers share one status, design the next-action view before proposing another pipeline column.
+
+## Sources and review notes
+
+- [Frappe HR README](https://github.com/frappe/hrms/blob/159548fa676d51e0bc7ce85c6b6516d3d7b7316a/README.md): suite scope, lifecycle features and deployment options.
+- [Job Applicant definition](https://github.com/frappe/hrms/blob/159548fa676d51e0bc7ce85c6b6516d3d7b7316a/hrms/hr/doctype/job_applicant/job_applicant.json): applicant fields, statuses, opening links and role declarations.
+- [Interview definition](https://github.com/frappe/hrms/blob/159548fa676d51e0bc7ce85c6b6516d3d7b7316a/hrms/hr/doctype/interview/interview.json): scheduling, interviewers, ratings and feedback links.
+- [Employee Onboarding definition](https://github.com/frappe/hrms/blob/159548fa676d51e0bc7ce85c6b6516d3d7b7316a/hrms/hr/doctype/employee_onboarding/employee_onboarding.json): offer linkage, joining dates, activities and boarding status.
+
+Source review: 6 November 2026. These definitions establish the reviewed data model. They do not establish the quality of every deployed workflow, actual customer outcomes, or the absence of similar views in other versions or configurations.

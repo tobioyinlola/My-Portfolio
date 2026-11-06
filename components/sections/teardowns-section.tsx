@@ -16,7 +16,7 @@ export function TeardownsSection() {
           id="teardowns-title"
           icon="cursor"
           kicker="Playground · Teardowns"
-          intro="Real products, one fixed template: what it does well, where it breaks, what I'd measure and how I'd improve it."
+          intro="Three deep dives into fintech, HR tech and AI: follow the user journey, inspect the trade-offs, and turn product friction into a measurable improvement."
         >
           Product <Highlight>teardowns</Highlight>
         </SectionTitle>
