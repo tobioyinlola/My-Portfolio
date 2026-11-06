@@ -18,7 +18,7 @@ export function SelectedWork() {
           id="work-title"
           icon="folder"
           kicker={`${String(items.length).padStart(2, "0")} FILES · KEEP SCROLLING`}
-          intro="Three products, each opened up: the problem, the decisions, the AI approach and what shipped."
+          intro="The problem, the decisions, the AI approach and what shipped—inside each product."
         >
           Selected <Highlight>work</Highlight>
         </SectionTitle>
