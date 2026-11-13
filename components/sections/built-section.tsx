@@ -4,11 +4,12 @@ import { accentClass } from "@/lib/accent";
 import { ArchDiagram } from "@/components/ui/arch-diagram";
 import { Highlight, MonoPill } from "@/components/ui/pill";
 import { SectionTitle } from "@/components/ui/section-title";
+import { SlideIn } from "@/components/ui/slide-in";
 import { cn } from "@/lib/utils";
 
 export function BuiltSection() {
   return (
-    <section id="built" aria-labelledby="built-title" className="px-4 pt-24 sm:px-6">
+    <section id="built" aria-labelledby="built-title" className="overflow-x-clip px-4 pt-24 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <SectionTitle
           id="built-title"
@@ -20,7 +21,8 @@ export function BuiltSection() {
         </SectionTitle>
         <div className="space-y-8">
           {builtProjects.map((p) => (
-            <article key={p.slug} className="overflow-hidden rounded-3xl border-2 border-line bg-surface">
+            <SlideIn key={p.slug}>
+            <article className="overflow-hidden rounded-3xl border-2 border-line bg-surface">
               <header className={cn("flex flex-wrap items-center justify-between gap-3 border-b-2 border-line px-6 py-4", accentClass[p.accent])}>
                 <h3 className="font-display text-2xl font-extrabold tracking-tight">
                   {p.name} <span className="font-medium">· {p.tagline}</span>
@@ -39,6 +41,7 @@ export function BuiltSection() {
                 </Link>
               </div>
             </article>
+            </SlideIn>
           ))}
         </div>
       </div>

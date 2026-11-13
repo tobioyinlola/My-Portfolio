@@ -25,8 +25,7 @@ Other scripts: `npm run build`, `npm start`, `npm run lint`, `npm run typecheck`
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL for sitemap, Open Graph and JSON-LD (set to your production URL). |
 | `NEXT_PUBLIC_BOOKING_URL` | Embeddable booking page (Cal.com, Calendly, SavvyCal...). Opens in the modal and the inline embed. If unset, "Book a call" jumps to the contact section and the embed shows an email fallback. |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Address used for "Email me" and "Copy email". |
-| `CONTACT_TO_EMAIL` | Optional. Where contact-form messages are sent (defaults to the site email). Delivery uses [FormSubmit](https://formsubmit.co), so no API key is needed; confirm the one-time activation email on first use. |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Optional Cloudflare Turnstile. The honeypot and time-trap run regardless. |
+| (none) | The contact form posts from the browser to [FormSubmit](https://formsubmit.co), which forwards to the site email. No API key; confirm the one-time activation email on first use. |
 
 ## Editing content (no component changes needed)
 
@@ -60,7 +59,7 @@ New file = new page. Slugs are the file names.
 
 ## Architecture notes
 
-- `app/` routes: `/` (home), `/work/[slug]`, `/teardowns`, `/teardowns/[slug]`, `/writing`, `/writing/[slug]`, `/videos`, `/videos/[slug]`, plus `/api/contact`, `/api/og`, `sitemap.xml`, `video-sitemap.xml`, `rss.xml`, `robots.txt`.
+- `app/` routes: `/` (home), `/work/[slug]`, `/teardowns`, `/teardowns/[slug]`, `/writing`, `/writing/[slug]`, `/videos`, `/videos/[slug]`, plus `/api/og`, `sitemap.xml`, `video-sitemap.xml`, `rss.xml`, `robots.txt`.
 - `lib/content.ts` loads and validates MDX at build time (server only). `lib/schemas.ts` holds the Zod schemas.
 - Motion: every animation uses `transform` and `opacity` only. `useMotionPref()` swaps springs and parallax for simple fades under `prefers-reduced-motion`, Lenis is not started, and the custom cursor is disabled. The custom cursor only runs on `(hover: hover) and (pointer: fine)` devices.
 - Booking: `BookCallProvider` + `useBookCall()`. Every "Book a call" button is a real link to the booking URL that opens the modal when JS runs.
