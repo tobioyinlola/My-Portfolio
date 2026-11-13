@@ -9,7 +9,7 @@ export const site = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   locale: "en_US",
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "tobioyinlola16@gmail.com",
-  bookingUrl: process.env.NEXT_PUBLIC_BOOKING_URL ?? "",
+  bookingUrl: process.env.NEXT_PUBLIC_BOOKING_URL || "https://cal.com/tobi-oyinlola-cesd2w/30min",
   jobTitle: "Senior Product Manager",
   location: "Lagos, Nigeria",
   links: {
