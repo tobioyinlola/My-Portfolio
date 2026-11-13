@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { site } from "@/config/site";
-import { BookButton } from "@/components/booking/book-button";
 import { BookingEmbed } from "@/components/booking/booking-embed";
 import { Button } from "@/components/ui/button";
 import { PixelIcon } from "@/components/ui/pixel-icons";
-import { ContactForm } from "@/components/sections/contact-form";
 import { cn } from "@/lib/utils";
 
 interface Sign {
@@ -98,16 +96,16 @@ export function SiteFooter() {
           </Bubble>
         </div>
 
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <BookButton size="lg" variant="cobalt" magnetic />
+        <div className="mx-auto mt-12 max-w-4xl">
+          <h3 className="mb-4 text-center font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Book a 30-minute call</h3>
+          <BookingEmbed height={720} />
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-3 text-center">
+          <p className="text-muted">Prefer to write? Send an email and I&apos;ll reply directly.</p>
           <Button href={`mailto:${site.email}`} size="lg" variant="cream" magnetic>
             Email me
           </Button>
-        </div>
-
-        <div className="mt-12 grid gap-8 lg:grid-cols-2">
-          <BookingEmbed />
-          <ContactForm />
         </div>
 
         <p className="mt-12 text-center font-mono text-xs font-semibold uppercase tracking-widest text-muted">
