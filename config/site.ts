@@ -3,13 +3,13 @@ export const site = {
   name: "Justus Oyinlola",
   fullName: "Justus Oyinlola",
   initials: "J",
-  title: "Justus Oyinlola — Senior Product Manager · Fintech, Payments & AI",
+  title: "Justus Oyinlola — Senior & Technical Product Manager",
   description:
-    "Senior and Technical Product Manager with 6+ years across fintech, cross-border payments, blockchain and AI. Owner of full product funnels in regulated, multi-market environments, including a platform scaled past $45M in monthly transaction volume.",
+    "Senior and Technical Product Manager with 6+ years taking products from idea to scale across fintech, blockchain, HR tech and AI. Owner of full product funnels in regulated, multi-market environments, including a platform scaled past $45M in monthly transaction volume.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   locale: "en_US",
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "tobioyinlola16@gmail.com",
-  bookingUrl: process.env.NEXT_PUBLIC_BOOKING_URL ?? "",
+  bookingUrl: process.env.NEXT_PUBLIC_BOOKING_URL || "https://cal.com/tobi-oyinlola-cesd2w/30min",
   jobTitle: "Senior Product Manager",
   location: "Lagos, Nigeria",
   links: {
