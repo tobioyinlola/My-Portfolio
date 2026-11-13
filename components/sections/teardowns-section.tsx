@@ -16,7 +16,7 @@ export function TeardownsSection() {
           id="teardowns-title"
           icon="cursor"
           kicker="Playground · Teardowns"
-          intro="Three deep dives into fintech, HR tech and AI: follow the user journey, inspect the trade-offs, and turn product friction into a measurable improvement."
+          intro="Senior-level product analysis across payments, HR tech and AI: follow the user journey, expose the trade-offs, and turn friction into a measurable bet with a release decision."
         >
           Product <Highlight>teardowns</Highlight>
         </SectionTitle>

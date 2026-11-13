@@ -13,7 +13,7 @@ export function personJsonLd() {
     jobTitle: site.jobTitle,
     description: site.description,
     image: abs("/avatar.svg"),
-    sameAs: [site.links.linkedin, site.links.x, site.links.youtube, site.links.github],
+    sameAs: [site.links.linkedin],
   };
 }
 

@@ -1,4 +1,4 @@
-export type AudienceId = "hire" | "build" | "fractional";
+export type AudienceId = "hire" | "recruit" | "advise";
 
 export interface Audience {
   id: AudienceId;
@@ -15,29 +15,29 @@ export interface Audience {
 export const audiences: readonly Audience[] = [
   {
     id: "hire",
-    label: "Hire a PM full-time",
-    reason: "Full-time role",
-    headline: "A PM who can read the spec and the stack trace.",
-    body: "[Replace: two sentences on what you bring to a full-time AI/Technical PM seat — scope you have owned, the teams you have worked with, the kind of company you want to join.]",
-    bullets: ["[Strength 1: e.g. 0→1 AI features]", "[Strength 2: e.g. evals & guardrails]", "[Strength 3: e.g. shipping with engineers]"],
+    label: "Hire me as a product leader",
+    reason: "Senior / Lead / Head of Product role",
+    headline: "A product leader who owns the funnel and reads the architecture.",
+    body: "I have owned end-to-end consumer and SME funnels in regulated fintech, from onboarding and KYC through cross-border settlement and revenue. I work best where product, engineering and compliance have to move as one, and I am ready to step into Head of Product scope.",
+    bullets: ["Scaled a platform past $45M in monthly volume", "Cut transaction fraud by 30% through KYC redesign", "0→1 launches across fintech, HR tech and SaaS"],
     cta: "Book an intro call",
   },
   {
-    id: "build",
-    label: "Get a product built or led",
-    reason: "Product build / leadership",
-    headline: "From fuzzy idea to deployed product.",
-    body: "[Replace: describe how you take a product from discovery through design to a live deployment, and what an engagement looks like — timeline, team shape, deliverables.]",
-    bullets: ["[Deliverable 1: e.g. spec & architecture]", "[Deliverable 2: e.g. working prototype]", "[Deliverable 3: e.g. production launch]"],
-    cta: "Scope a build",
+    id: "recruit",
+    label: "Recruiter or agency",
+    reason: "Recruiter / agency opportunity",
+    headline: "The short version, before you open the CV.",
+    body: "Six years in product, five companies, four markets. Payments, cross-border, blockchain settlement and AI. Open to remote, hybrid and relocation. Targeting Senior, Lead, Director and Head of Product roles in fintech, payments, infrastructure and AI.",
+    bullets: ["Fintech, payments, crypto and AI product", "Regulated and multi-market delivery", "Open to remote, hybrid and relocation"],
+    cta: "Send a role",
   },
   {
-    id: "fractional",
-    label: "Fractional / advisory",
-    reason: "Fractional / advisory",
-    headline: "Senior product judgment, a few days a month.",
-    body: "[Replace: describe the advisory/fractional offer — what you review, how often you meet, the decisions you help unblock for AI product teams.]",
-    bullets: ["[Offer 1: e.g. AI roadmap review]", "[Offer 2: e.g. eval strategy]", "[Offer 3: e.g. PM coaching]"],
-    cta: "Talk fractional",
+    id: "advise",
+    label: "Advisory or fractional",
+    reason: "Advisory / fractional product leadership",
+    headline: "Senior product judgment for teams scaling payments.",
+    body: "Roadmaps, onboarding and KYC funnel design, cross-border and stablecoin product strategy, pricing and monetisation, and the operating rhythm that gets product and engineering shipping together. Focused engagements, clear decisions.",
+    bullets: ["Onboarding and KYC/KYB funnel review", "Cross-border and stablecoin product strategy", "Roadmap, pricing and PM team coaching"],
+    cta: "Talk advisory",
   },
 ];

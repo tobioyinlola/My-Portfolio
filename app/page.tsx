@@ -5,10 +5,8 @@ import { SelectedWork } from "@/components/sections/selected-work";
 import { FocusSection } from "@/components/sections/focus-section";
 import { TeardownsSection } from "@/components/sections/teardowns-section";
 import { HowTosSection } from "@/components/sections/howtos-section";
-import { VideoShelf } from "@/components/sections/video-shelf";
 import { BuiltSection } from "@/components/sections/built-section";
 import { ExperienceSection } from "@/components/sections/experience-section";
-import { TestimonialsSection } from "@/components/sections/testimonials-section";
 
 export default function HomePage() {
   return (
@@ -19,10 +17,8 @@ export default function HomePage() {
       <FocusSection />
       <TeardownsSection />
       <HowTosSection />
-      <VideoShelf />
       <BuiltSection />
       <ExperienceSection />
-      <TestimonialsSection />
     </>
   );
 }

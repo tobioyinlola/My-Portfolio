@@ -14,9 +14,9 @@ export function BuiltSection() {
           id="built-title"
           icon="briefcase"
           kicker="Proof of shipping"
-          intro="Not just decks: here is how the products are put together and where they run."
+          intro="Not just roadmaps: how the platforms are put together, the technical trade-offs behind them, and the product decisions they forced."
         >
-          Built <Highlight>by me</Highlight>
+          Platforms I have <Highlight>shipped</Highlight>
         </SectionTitle>
         <div className="space-y-8">
           {builtProjects.map((p) => (

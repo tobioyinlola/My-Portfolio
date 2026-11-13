@@ -7,7 +7,7 @@ import { teardownCards } from "@/components/sections/teardowns-section";
 
 export const metadata: Metadata = pageMetadata({
   title: "Product teardowns",
-  description: "Senior PM deep dives into Stripe Checkout, Frappe HR and Open WebUI, with user journeys, evidence, diagrams, proposed improvements and experiment plans.",
+  description: "Senior product teardowns of Stripe Checkout, Frappe HR and Open WebUI: user journeys, evidence, trade-offs, proposed improvements and experiment and release decisions.",
   path: "/teardowns",
   kicker: "Teardowns",
 });

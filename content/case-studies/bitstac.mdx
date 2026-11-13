@@ -1,0 +1,71 @@
+---
+title: "Bitstac"
+subtitle: "Blockchain-enabled trade finance, China to Africa"
+outcomeHeadline: "Scaled to over $45M in monthly transaction volume with stablecoin settlement"
+accent: cobalt
+role: "Senior Product Manager"
+timeline: "Jan 2026 – Aug 2026"
+team: "Product, engineering and compliance, with African SME and trade-network partners"
+stack:
+  - "USDT and USDC stablecoin settlement"
+  - "Wallet architecture and on-chain transaction flows"
+  - "Tiered KYB, fraud detection and AML screening"
+  - "APIs for enterprise clients"
+status: "Scaled"
+metrics:
+  - { label: "Monthly transaction volume", value: "$45M+" }
+  - { label: "Settlement rails", value: "USDT, USDC" }
+  - { label: "Corridor", value: "China ↔ Africa" }
+date: "2026-08-01"
+order: 1
+---
+
+Bitstac is a trade finance and blockchain-enabled payment platform for SMEs and importers moving goods between China and Africa. I owned the consumer transaction funnel end to end, from the first onboarding step to settled payment.
+
+## Context and problem
+
+Importers and SMEs trading between China and Africa face slow, expensive and unpredictable cross-border payments. Traditional rails add days, layers of intermediaries and FX friction, and small businesses often have the least leverage against them. At the same time, any alternative has to satisfy compliance requirements, or it simply cannot be offered.
+
+The product problem was to make cross-border settlement fast and low-cost without weakening trust, and to scale it into a platform businesses would rely on for real trade volume.
+
+## Who it's for
+
+SMEs and importers paying suppliers across the China–Africa corridor, and the early enterprise clients who needed to integrate payments into their own systems. Their job to be done is simple: pay a supplier quickly, at a predictable cost, with confidence the money arrives and the counterparty is legitimate.
+
+## Discovery and key insight
+
+I built strategic partnerships with African SME communities and trade networks early, so assumptions about adoption and market fit were tested with real traders before they became roadmap commitments.
+
+The insight that shaped the product: for this audience, speed and cost get a user to try the product, but trust and compliance clarity decide whether they stay. Onboarding therefore could not be treated as a hurdle to minimise. It had to be designed as part of the product's credibility.
+
+## Options considered and decisions
+
+Three decisions defined the product.
+
+- **Stablecoins as the settlement rail.** I integrated USDT and USDC to enable fast, low-cost settlements. The trade-off is moving friction from FX and intermediaries to wallet, custody and on-chain design, which I shaped directly with engineering.
+- **Tiered KYB rather than a single gate.** I designed a tiered Know Your Business flow with integrated fraud detection, AML screening and cybersecurity checkpoints. Risk is assessed in proportion to what a business wants to do, which reduced onboarding risk without forcing every user through the heaviest checks on day one.
+- **Enterprise-first launch.** I owned the vision, roadmap, discovery, PRDs and engineering sprints through go-live with early enterprise clients. Starting with a small set of demanding clients exposed reliability and API gaps before they could affect the wider SME base.
+
+## AI approach
+
+Bitstac was not an AI-led product, and I did not force AI into it. The technical judgment here was in blockchain and risk architecture.
+
+I applied working knowledge of crypto and blockchain fundamentals, including wallet architecture, on-chain transaction flows and stablecoin settlement mechanics, to guide engineering trade-offs. The fraud detection and AML screening checkpoints in the KYB flow are where automated risk signals entered the product. I worked closely with engineering on system architecture decisions, API design and the technical trade-offs that kept the platform reliable and scalable.
+
+## What I built
+
+<ArchDiagram project="bitstac" />
+
+- **Transaction funnel:** the full path from onboarding to settlement for SMEs and importers.
+- **Stablecoin payment infrastructure:** USDT and USDC settlement for cross-border trade.
+- **Tiered KYB compliance flow:** fraud detection, AML screening and cybersecurity checkpoints built into onboarding.
+- **Enterprise integrations:** APIs and integrations for early enterprise clients.
+- **Go-to-market partnerships:** African SME communities and trade networks that drove adoption.
+
+## Outcomes
+
+The platform scaled to **over $45M in monthly transaction volume**, with settlement running on USDT and USDC rails. The tiered KYB flow significantly reduced onboarding risk, and the partnership programme with African SME communities and trade networks accelerated adoption and validated market fit.
+
+## What I'd do differently
+
+I would instrument the onboarding funnel by KYB tier from the first release, so the cost of each compliance checkpoint in drop-off was visible alongside the risk it removed. I would also bring compliance and engineering into discovery sooner. On a regulated product, the fastest roadmap is the one where the constraint is understood before the design, not after it.

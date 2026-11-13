@@ -1,25 +1,21 @@
-/**
- * Single source of truth for identity, links and navigation.
- * Anything wrapped in [BRACKETS] is a placeholder you need to replace.
- */
+/** Single source of truth for identity, links and navigation. */
 export const site = {
-  name: "Justus",
-  fullName: "Justus [LAST NAME]",
+  name: "Justus Oyinlola",
+  fullName: "Justus Oyinlola",
   initials: "J",
-  title: "Justus — AI Product Manager & Technical PM",
+  title: "Justus Oyinlola — Senior Product Manager · Fintech, Payments & AI",
   description:
-    "AI Product Manager and Technical PM with 5+ years of experience. I design, build and deploy real products — case studies, teardowns, how-tos and videos.",
+    "Senior and Technical Product Manager with 6+ years across fintech, cross-border payments, blockchain and AI. Owner of full product funnels in regulated, multi-market environments, including a platform scaled past $45M in monthly transaction volume.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   locale: "en_US",
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hello@[YOUR-DOMAIN]",
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "tobioyinlola16@gmail.com",
   bookingUrl: process.env.NEXT_PUBLIC_BOOKING_URL ?? "",
-  jobTitle: "AI Product Manager & Technical PM",
-  location: "[CITY, COUNTRY]",
+  jobTitle: "Senior Product Manager",
+  location: "Lagos, Nigeria",
   links: {
-    linkedin: "https://www.linkedin.com/in/[YOUR-HANDLE]",
-    x: "https://x.com/[YOUR-HANDLE]",
-    youtube: "https://www.youtube.com/@[YOUR-CHANNEL]",
-    github: "https://github.com/[YOUR-HANDLE]",
+    linkedin: "https://www.linkedin.com/in/justusoyinlola",
+    /** Videos are hidden from the site until real uploads exist; this only serves the unlinked /videos pages. */
+    youtube: "https://www.youtube.com/",
     resume: "/resume.pdf",
   },
 } as const;
@@ -31,21 +27,18 @@ export interface NavItem {
 
 export const navItems: readonly NavItem[] = [
   { label: "Work", href: "/#work" },
-  { label: "Playground", href: "/#teardowns" },
-  { label: "About", href: "/#experience" },
-  { label: "Videos", href: "/videos" },
+  { label: "Teardowns", href: "/#teardowns" },
+  { label: "Experience", href: "/#experience" },
   { label: "Writing", href: "/writing" },
 ];
 
 /** Home-page sections the command palette and nav can jump to. */
 export const sections: readonly NavItem[] = [
   { label: "Selected work", href: "/#work" },
-  { label: "What I work on", href: "/#focus" },
+  { label: "What I lead", href: "/#focus" },
   { label: "Product teardowns", href: "/#teardowns" },
   { label: "How-to library", href: "/#how-tos" },
-  { label: "Videos", href: "/#videos" },
-  { label: "Built by me", href: "/#built" },
+  { label: "Platforms I have shipped", href: "/#built" },
   { label: "Experience", href: "/#experience" },
-  { label: "Word of mouth", href: "/#word-of-mouth" },
   { label: "Contact & booking", href: "/#contact" },
 ];

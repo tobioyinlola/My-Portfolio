@@ -22,7 +22,7 @@ function Diagram({ project }: { project: string }) {
   return (
     <figure className="rounded-2xl border-2 border-line bg-surface p-4">
       <ArchDiagram project={found} />
-      <figcaption className="mt-2 text-center font-mono text-[0.68rem] uppercase tracking-wider text-muted">{found.name} architecture (placeholder)</figcaption>
+      <figcaption className="mt-2 text-center font-mono text-[0.68rem] uppercase tracking-wider text-muted">{found.name} product-level architecture</figcaption>
     </figure>
   );
 }
