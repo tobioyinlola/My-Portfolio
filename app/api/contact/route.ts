@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { site } from "@/config/site";
 import { contactSchema } from "@/lib/schemas";
 
 const MIN_FILL_MS = 3000;
@@ -43,10 +44,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Spam check failed. Please try again." }, { status: 400 });
   }
 
-  const { RESEND_API_KEY, CONTACT_TO_EMAIL, CONTACT_FROM_EMAIL } = process.env;
-  if (!RESEND_API_KEY || !CONTACT_TO_EMAIL || !CONTACT_FROM_EMAIL) {
-    console.warn("[contact] RESEND_API_KEY / CONTACT_TO_EMAIL / CONTACT_FROM_EMAIL not set; message not delivered");
-    return NextResponse.json({ error: "The form isn't connected yet." }, { status: 503 });
+  // Only RESEND_API_KEY is required. Messages go to the site email by default, and are sent from Resend's
+  // shared sender until a custom domain is verified (the shared sender can only deliver to the Resend account's own email).
+  const { RESEND_API_KEY } = process.env;
+  const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || site.email;
+  const CONTACT_FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || `Portfolio Contact <onboarding@resend.dev>`;
+  if (!RESEND_API_KEY) {
+    console.warn("[contact] RESEND_API_KEY not set; message not delivered");
+    return NextResponse.json({ error: `The form isn't connected yet. Please email ${site.email} directly.` }, { status: 503 });
   }
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -60,6 +65,9 @@ export async function POST(request: Request) {
       text: `${message.message}\n\n— ${message.name} <${message.email}>\nReason: ${message.reason}`,
     }),
   });
-  if (!res.ok) return NextResponse.json({ error: "Couldn't send your message." }, { status: 502 });
+  if (!res.ok) {
+    console.error("[contact] Resend rejected the message", res.status, await res.text().catch(() => ""));
+    return NextResponse.json({ error: `Couldn't send your message. Please email ${site.email} directly.` }, { status: 502 });
+  }
   return NextResponse.json({ ok: true });
 }
