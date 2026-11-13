@@ -1,9 +1,9 @@
 ---
 title: "Vurt"
 subtitle: "Cross-border settlement and multi-currency fintech"
-outcomeHeadline: "Reduced transaction-related fraud by 30% within six months"
+outcomeHeadline: "Reduced transaction-related fraud by 30% within six months while improving settlement speed and reliability"
 accent: mustard
-role: "Product Manager"
+role: "Product Manager (cross-border settlement, FX and KYC)"
 timeline: "Mar 2023 – Feb 2024"
 team: "Product, engineering and risk"
 stack:
@@ -19,11 +19,27 @@ date: "2024-02-01"
 order: 3
 ---
 
-Vurt is a fintech product for moving money across African and global markets. I led feature development across cross-border settlement and multi-currency exchange, and strengthened the KYC and fraud controls around them.
+Vurt is a fintech product for moving money across African and global markets. I led feature development across cross-border settlement and multi-currency exchange, and tightened the KYC and fraud controls around them.
+
+<StatGrid>
+  <Stat value="-30%" label="Transaction-related fraud" note="Achieved within 6 months of rollout through stronger KYC and detection workflows." />
+  <Stat value="Real-time" label="Transaction processing" note="APIs integrated to reduce settlement delays and improve payment reliability." />
+  <Stat value="Multi-currency" label="FX and settlement" note="Seamless transactions across African and global markets." />
+  <Stat value="Research-led" label="Iteration" note="Friction points found through user research and analytics fed directly into releases." />
+</StatGrid>
 
 ## Context and problem
 
-Cross-border payments in and out of African markets suffer from settlement delays, poor reliability and fraud exposure. Users lose trust quickly when a transfer is slow or unclear, and the business loses money when fraud passes through weak identity checks.
+Cross-border payments in and out of African markets suffer from settlement delays, uneven reliability and fraud exposure. Users lose trust quickly when a transfer is slow or unclear, and the business loses money when fraud passes through weak identity checks.
+
+## My role and ownership
+
+| Area | What I owned |
+| --- | --- |
+| Settlement and FX | Led feature development for cross-border settlement and multi-currency exchange systems |
+| Payments performance | Integrated real-time transaction processing APIs to reduce settlement delays and improve reliability |
+| Risk | Strengthened KYC and fraud detection workflows |
+| Research and analytics | Conducted user research and synthesised data analytics to find friction points and shape iterations |
 
 ## Who it's for
 
@@ -31,33 +47,45 @@ Individuals and businesses who need to send, receive and exchange money across c
 
 ## Discovery and key insight
 
-I ran user research and analysed product data to find the friction points in the transaction journey. These findings directly informed iterations that improved usability and retention.
+I ran user research and analysed product data to locate friction in the transaction journey. These findings informed product iterations that improved usability and retention.
 
-The key insight: settlement speed and fraud control are one problem, not two. Users judge reliability by how quickly and predictably money lands, while the business judges it by how little fraud gets through. Improving only one at the expense of the other would not hold.
+**The key insight:** settlement speed and fraud control are one problem, not two. Users judge reliability by how quickly and predictably money lands, while the business judges it by how little fraud gets through. Improving one at the expense of the other would not hold.
 
 ## Options considered and decisions
 
-- **Real-time transaction processing APIs.** I integrated real-time processing to cut settlement delays and improve payment reliability for end users.
-- **Strengthen KYC and detection together.** Rather than adding a separate fraud layer, I reworked KYC and fraud detection workflows as one flow, so identity quality and transaction monitoring reinforced each other.
-- **Multi-currency exchange as a core capability.** Seamless transactions across African and global markets required FX and settlement to be designed together from the start.
+| Decision | The alternative | What I chose | Trade-off accepted |
+| --- | --- | --- | --- |
+| Settlement speed | Batch-style processing | Real-time transaction processing APIs | Higher integration effort in exchange for fewer delays and a more reliable user experience |
+| Fraud control | A separate fraud layer added on top | Reworked KYC and fraud detection as one flow | Identity quality and transaction monitoring reinforce each other, at the cost of touching onboarding itself |
+| FX | Bolt FX onto settlement later | Design multi-currency exchange and settlement together | A larger first build, but consistent transactions across markets |
 
 ## AI approach
 
-This was a fintech and risk product, not an AI-led one. The technical leverage came from API integration for real-time processing and from detection workflows that identified suspicious transactions during rollout. I worked at the boundary of product, engineering and risk to decide where checks belonged in the flow.
+This was a fintech and risk product, not an AI-led one. The technical leverage came from API integration for real-time processing and from detection workflows that flagged suspicious transactions during rollout. I worked at the boundary of product, engineering and risk to decide where each check belonged in the flow.
 
 ## What I built
 
-- **Cross-border settlement and multi-currency exchange** features across African and global markets.
+- **Cross-border settlement and multi-currency exchange** across African and global markets.
 - **Real-time transaction processing APIs** integrated into the payment flow.
 - **Strengthened KYC and fraud detection workflows.**
 - **Research-driven iterations** based on user research and analytics.
 
+## How I ran delivery
+
+1. **Diagnose:** user research and analytics to find where users stalled or lost trust.
+2. **Prioritise:** rank friction by impact on settlement reliability and fraud exposure.
+3. **Ship:** release settlement, FX and KYC improvements in iterations.
+4. **Measure:** track fraud and settlement outcomes through rollout.
+
 ## Outcomes
 
-- Achieved a **30% reduction in transaction-related fraud within six months** of rollout.
-- Significantly reduced settlement delays and improved payment reliability for end users.
-- Delivered usability and retention improvements traced to research and data analysis.
+| Metric | Result | What drove it |
+| --- | --- | --- |
+| Transaction-related fraud | **Down 30% within 6 months of rollout** | Strengthened KYC and fraud detection workflows |
+| Settlement delays | **Significantly reduced** | Real-time transaction processing APIs |
+| Payment reliability | **Improved for end users** | Faster, more predictable settlement |
+| Usability and retention | **Improved** | Iterations informed by user research and analytics |
 
 ## What I'd do differently
 
-I would set a fraud-versus-friction budget at the outset, so every added check had an explicit cost in conversion that the team had agreed to in advance. I would also measure settlement time by corridor from day one, because averages across markets hide exactly the corridors that most need attention.
+I would set a fraud-versus-friction budget at the outset, so every added check carried an explicit conversion cost the team had agreed to in advance. I would also measure settlement time by corridor from day one, because averages across markets hide the corridors that most need attention.

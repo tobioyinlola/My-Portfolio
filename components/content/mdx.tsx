@@ -27,7 +27,21 @@ function Diagram({ project }: { project: string }) {
   );
 }
 
-const components = { Placeholder, ArchDiagram: Diagram, TeardownFlow, TeardownConcept };
+function StatGrid({ children }: { children: React.ReactNode }) {
+  return <div className="not-prose my-8 grid gap-4 sm:grid-cols-2">{children}</div>;
+}
+
+function Stat({ value, label, note }: { value: string; label: string; note?: string }) {
+  return (
+    <div className="rounded-2xl border-2 border-line bg-surface p-5 shadow-[0_4px_0_var(--line)]">
+      <p className="font-display text-4xl font-extrabold leading-none tracking-tight">{value}</p>
+      <p className="mt-2 font-mono text-[0.7rem] font-semibold uppercase tracking-widest">{label}</p>
+      {note && <p className="mt-2 text-sm leading-snug text-muted">{note}</p>}
+    </div>
+  );
+}
+
+const components = { StatGrid, Stat, Placeholder, ArchDiagram: Diagram, TeardownFlow, TeardownConcept };
 
 export function Mdx({ source }: { source: string }) {
   return (
