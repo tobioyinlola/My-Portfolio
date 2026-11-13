@@ -25,7 +25,7 @@ Other scripts: `npm run build`, `npm start`, `npm run lint`, `npm run typecheck`
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL for sitemap, Open Graph and JSON-LD (set to your production URL). |
 | `NEXT_PUBLIC_BOOKING_URL` | Embeddable booking page (Cal.com, Calendly, SavvyCal...). Opens in the modal and the inline embed. If unset, "Book a call" jumps to the contact section and the embed shows an email fallback. |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Address used for "Email me" and "Copy email". |
-| `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` | Contact form delivery through [Resend](https://resend.com). Without them the form returns a clear error and points people to your email. |
+| `CONTACT_TO_EMAIL` | Optional. Where contact-form messages are sent (defaults to the site email). Delivery uses [FormSubmit](https://formsubmit.co), so no API key is needed; confirm the one-time activation email on first use. |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Optional Cloudflare Turnstile. The honeypot and time-trap run regardless. |
 
 ## Editing content (no component changes needed)

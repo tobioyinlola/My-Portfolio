@@ -44,29 +44,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Spam check failed. Please try again." }, { status: 400 });
   }
 
-  // Only RESEND_API_KEY is required. Messages go to the site email by default, and are sent from Resend's
-  // shared sender until a custom domain is verified (the shared sender can only deliver to the Resend account's own email).
-  const { RESEND_API_KEY } = process.env;
-  const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || site.email;
-  const CONTACT_FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || `Portfolio Contact <onboarding@resend.dev>`;
-  if (!RESEND_API_KEY) {
-    console.warn("[contact] RESEND_API_KEY not set; message not delivered");
-    return NextResponse.json({ error: `The form isn't connected yet. Please email ${site.email} directly.` }, { status: 503 });
-  }
-
-  const res = await fetch("https://api.resend.com/emails", {
+  // Delivery via FormSubmit (formsubmit.co): no account or API key. The first message ever sent triggers a one-time
+  // activation email to the recipient; after that every submission is forwarded straight to the inbox.
+  const to = process.env.CONTACT_TO_EMAIL || site.email;
+  const origin = request.headers.get("origin") ?? site.url;
+  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", Accept: "application/json", Origin: origin, Referer: origin },
     body: JSON.stringify({
-      from: CONTACT_FROM_EMAIL,
-      to: CONTACT_TO_EMAIL,
-      reply_to: message.email,
-      subject: `[Portfolio] ${message.reason} — ${message.name}`,
-      text: `${message.message}\n\n— ${message.name} <${message.email}>\nReason: ${message.reason}`,
+      _subject: `[Portfolio] ${message.reason} — ${message.name}`,
+      _replyto: message.email,
+      _template: "table",
+      _captcha: "false",
+      Name: message.name,
+      Email: message.email,
+      Reason: message.reason,
+      Message: message.message,
     }),
-  });
-  if (!res.ok) {
-    console.error("[contact] Resend rejected the message", res.status, await res.text().catch(() => ""));
+  }).catch(() => null);
+  const body = (await res?.json().catch(() => null)) as { success?: boolean | string; message?: string } | null;
+  const delivered = res?.ok === true && (body?.success === true || body?.success === "true");
+  if (!delivered) {
+    console.error("[contact] FormSubmit did not deliver the message", res?.status, body?.message);
     return NextResponse.json({ error: `Couldn't send your message. Please email ${site.email} directly.` }, { status: 502 });
   }
   return NextResponse.json({ ok: true });
