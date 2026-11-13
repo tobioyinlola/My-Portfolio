@@ -1,17 +1,15 @@
 "use client";
 
-import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { audiences } from "@/config/audiences";
 import { site } from "@/config/site";
 import { useAudience } from "@/components/hero/audience-provider";
 import { Button } from "@/components/ui/button";
-import type { ContactInput } from "@/lib/schemas";
+import { contactSchema } from "@/lib/schemas";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
 const reasons = [...audiences.map((a) => a.reason), "Something else"];
-const turnstileKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 const field =
   "w-full rounded-2xl border-2 border-line bg-surface px-4 py-3 text-base placeholder:text-muted";
@@ -32,21 +30,48 @@ export function ContactForm() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    const payload: ContactInput = {
+    const parsed = contactSchema.safeParse({
       name: String(data.get("name") ?? ""),
       email: String(data.get("email") ?? ""),
       reason: String(data.get("reason") ?? ""),
       message: String(data.get("message") ?? ""),
       website: String(data.get("website") ?? ""),
       startedAt: startedAt.current,
-      turnstileToken: String(data.get("cf-turnstile-response") ?? "") || undefined,
-    };
+    });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Please check the form.");
+      setStatus("error");
+      return;
+    }
+    const { website, startedAt: started, ...message } = parsed.data;
+    // Bots: filled honeypot or instant submit. Pretend success so they learn nothing.
+    if (website || Date.now() - started < 3000) {
+      setStatus("sent");
+      return;
+    }
     setStatus("sending");
     setError("");
     try {
-      const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const body = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) throw new Error(body.error ?? "Something went wrong.");
+      // Sent from the visitor's browser straight to FormSubmit, which forwards it to the inbox (no account or API key).
+      const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(site.email)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          _subject: `[Portfolio] ${message.reason} — ${message.name}`,
+          _replyto: message.email,
+          _template: "table",
+          _captcha: "false",
+          Name: message.name,
+          Email: message.email,
+          Reason: message.reason,
+          Message: message.message,
+        }),
+      });
+      const body = (await res.json().catch(() => ({}))) as { success?: boolean | string; message?: string };
+      if (!res.ok || !(body.success === true || body.success === "true")) {
+        console.error("[contact] FormSubmit did not deliver the message", res.status, body.message);
+        throw new Error("Couldn't send your message.");
+      }
       setStatus("sent");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -97,12 +122,6 @@ export function ContactForm() {
         </label>
       </div>
 
-      {turnstileKey && (
-        <>
-          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
-          <div className="cf-turnstile" data-sitekey={turnstileKey} />
-        </>
-      )}
 
       <div className="flex flex-wrap items-center gap-4">
         <Button type="submit" variant="cobalt" disabled={status === "sending"}>
