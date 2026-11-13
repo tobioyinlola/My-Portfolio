@@ -70,15 +70,3 @@ export const videoSchema = z.object({
 });
 export type VideoMeta = z.infer<typeof videoSchema>;
 
-export const contactSchema = z.object({
-  name: z.string().trim().min(1, "Please add your name").max(120),
-  email: z.string().trim().email("Please use a valid email").max(200),
-  reason: z.string().trim().min(1, "Pick a reason").max(80),
-  message: z.string().trim().min(10, "A few more words please").max(4000),
-  /** Honeypot: humans never see it, so any value means a bot (handled in the route, not rejected here). */
-  website: z.string().optional(),
-  /** Epoch ms when the form was rendered; used as a time-trap. */
-  startedAt: z.number().int(),
-  turnstileToken: z.string().optional(),
-});
-export type ContactInput = z.infer<typeof contactSchema>;
