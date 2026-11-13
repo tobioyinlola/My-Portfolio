@@ -18,12 +18,9 @@ interface Sign {
 
 const signs: readonly Sign[] = [
   { label: "Work", href: "/#work", color: "bg-cobalt text-cream", tilt: -4, side: "right" },
-  { label: "Videos", href: "/videos", color: "bg-mustard text-[#16130f]", tilt: 3, side: "left" },
   { label: "Writing", href: "/writing", color: "bg-terracotta text-cream", tilt: -2, side: "right" },
   { label: "Resume", href: site.links.resume, color: "bg-forest text-cream", tilt: 4, side: "left", external: true },
   { label: "LinkedIn", href: site.links.linkedin, color: "bg-lilac text-[#16130f]", tilt: -3, side: "right", external: true },
-  { label: "X", href: site.links.x, color: "bg-cream text-[#16130f]", tilt: 2, side: "left", external: true },
-  { label: "YouTube", href: site.links.youtube, color: "bg-cobalt text-cream", tilt: -2, side: "right", external: true },
 ];
 
 const clouds = [
@@ -66,7 +63,7 @@ export function SiteFooter() {
 
         <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto_1fr]">
           <Bubble pattern="bg-lilac pattern-dots" tail="right" tailColor="bg-lilac" className="lg:-rotate-2">
-            Got something you want built properly?
+            Scaling a product that has to be right the first time?
           </Bubble>
 
           <nav aria-label="Site links" className="relative mx-auto w-64 py-2">
@@ -97,7 +94,7 @@ export function SiteFooter() {
           </nav>
 
           <Bubble pattern="bg-mustard pattern-stripes" tail="left" tailColor="bg-mustard" className="lg:rotate-2">
-            Hiring for an AI/product role? Need a PM or a product built? Let&apos;s talk.
+            Hiring for a Senior, Lead or Head of Product role? Let&apos;s talk.
           </Bubble>
         </div>
 
@@ -114,7 +111,7 @@ export function SiteFooter() {
         </div>
 
         <p className="mt-12 text-center font-mono text-xs font-semibold uppercase tracking-widest text-muted">
-          © {new Date().getFullYear()} {site.fullName} · Built with Next.js
+          © {new Date().getFullYear()} {site.fullName} · Lagos, Nigeria · Open to remote, hybrid and relocation
         </p>
       </div>
     </footer>

@@ -17,7 +17,7 @@ export function ExperienceSection() {
   return (
     <section id="experience" aria-labelledby="experience-title" className="px-4 pt-24 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle id="experience-title" icon="briefcase" kicker="About · Experience" intro="5+ years, built up brick by brick.">
+        <SectionTitle id="experience-title" icon="briefcase" kicker="About · Experience" intro="Six years from associate PM to senior product leadership: payments, cross-border, blockchain and AI.">
           <Highlight>Experience</Highlight>
         </SectionTitle>
         <ol className="mx-auto flex max-w-3xl flex-col gap-2">
@@ -30,16 +30,26 @@ export function ExperienceSection() {
               // bottom brick lands first
               transition={reduced ? { duration: 0.3 } : { type: "spring", stiffness: 180, damping: 16, delay: (n - 1 - i) * 0.12 }}
               className={cn(
-                "flex flex-col justify-between gap-1 rounded-2xl border-2 border-line px-6 py-5 shadow-[0_5px_0_var(--line)] sm:flex-row sm:items-center sm:gap-6",
+                "flex flex-col gap-3 rounded-2xl border-2 border-line px-6 py-5 shadow-[0_5px_0_var(--line)]",
                 accentClass[e.accent],
                 offsets[i % offsets.length],
               )}
             >
-              <span className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">{e.company}</span>
-              <span className="flex flex-col font-mono text-xs font-semibold uppercase tracking-wider sm:items-end">
-                <span>{e.years}</span>
-                <span>{e.role}</span>
-              </span>
+              <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-center sm:gap-6">
+                <span className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">{e.company}</span>
+                <span className="flex flex-col font-mono text-xs font-semibold uppercase tracking-wider sm:items-end">
+                  <span>{e.years}</span>
+                  <span>{e.role}</span>
+                </span>
+              </div>
+              <ul className="space-y-1 text-sm font-medium leading-snug">
+                {e.highlights.map((h) => (
+                  <li key={h} className="flex gap-2">
+                    <span aria-hidden>+</span>
+                    {h}
+                  </li>
+                ))}
+              </ul>
             </m.li>
           ))}
         </ol>

@@ -1,12 +1,12 @@
 /** Hero copy. Each word becomes its own colour-blocked label. */
 export const hero = {
   lines: [
-    ["I", "build", "AI", "products"],
-    ["and", "I", "ship", "them."],
+    ["I", "scale", "fintech", "products"],
+    ["that", "move", "real", "money."],
   ],
   statement: [
-    "AI Product Manager and Technical PM with 5+ years of experience designing, building and deploying real products.",
-    "Specs engineers trust, prototypes users react to, launches that actually go live.",
+    "Senior and Technical Product Manager with 6+ years across payments, cross-border, blockchain and AI. I own the full funnel, from onboarding and KYC to settlement and revenue, inside regulated, multi-market environments.",
+    "Most recently scaled a trade finance platform past $45M in monthly transaction volume. Now building toward Head of Product.",
   ],
   audienceLabel: "I'm here to…",
 } as const;

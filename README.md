@@ -1,10 +1,10 @@
 # Portfolio
 
-A personal portfolio for an AI Product Manager / Technical PM. It is built to do three things: prove thinking (case studies, teardowns, how-tos), prove shipping (built products, architecture, video) and convert (book a call).
+Portfolio for Justus Oyinlola, Senior and Technical Product Manager (fintech, payments, AI). It is built to do three things: prove thinking (case studies, teardowns, how-tos), prove shipping (built products, architecture, video) and convert (book a call).
 
 **Stack:** Next.js (App Router) · React · TypeScript (strict) · Tailwind CSS v4 · Framer Motion · Lenis · MDX (validated with Zod) · cmdk · Vercel Analytics.
 
-> All copy, links and metrics are **placeholders** wrapped in `[BRACKETS]`, for example `[METRIC]`. Nothing here is a real claim. Search the project for `[` before you launch.
+> Videos are hidden from the home page, nav and sitemap until real uploads exist. Add a real `youtubeId` in `content/videos/*.mdx` and re-link them when ready.
 
 ## Setup
 
@@ -40,7 +40,6 @@ Other scripts: `npm run build`, `npm start`, `npm run lint`, `npm run typecheck`
 | "What I work on" tiles | `content/focus.ts` |
 | Architecture diagrams, stack and deployment notes | `content/built.ts` |
 | Experience bricks | `content/experience.ts` |
-| Testimonials | `content/testimonials.ts` |
 | Case studies | `content/case-studies/*.mdx` |
 | Teardowns | `content/teardowns/*.mdx` |
 | How-tos | `content/how-tos/*.mdx` |

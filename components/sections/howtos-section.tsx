@@ -12,7 +12,7 @@ export function HowTosSection() {
   return (
     <section id="how-tos" aria-labelledby="howtos-title" className="px-4 pt-24 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle id="howtos-title" icon="doc" kicker="Writing · Library" intro="Practical guides for AI product work. Search or filter by tag.">
+        <SectionTitle id="howtos-title" icon="doc" kicker="Writing · Library" intro="Playbooks on the decisions product leaders own: PRDs, roadmap bets, scope, launches and AI readiness.">
           How-to <Highlight>library</Highlight>
         </SectionTitle>
         <HowToLibrary items={howToCards()} limit={4} />

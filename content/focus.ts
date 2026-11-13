@@ -11,31 +11,31 @@ export interface FocusArea {
 
 export const focusAreas: readonly FocusArea[] = [
   {
-    title: "AI product management",
+    title: "Fintech & payments",
     icon: "bulb",
     accent: "mustard",
-    blurb: "LLM features that survive contact with real users.",
-    points: ["Evals and quality bars", "Guardrails and failure modes", "Cost / latency / quality trade-offs"],
+    blurb: "Money movement that is fast, compliant and trusted.",
+    points: ["Cross-border payments and FX", "Stablecoin settlement (USDT, USDC)", "Multicurrency accounts and cards"],
   },
   {
-    title: "Technical PM",
+    title: "Risk, KYC & compliance",
     icon: "doc",
     accent: "cobalt",
-    blurb: "Specs engineers actually want to build from.",
-    points: ["Specs, APIs and architecture", "Sequencing and scope", "Shipping alongside engineers"],
+    blurb: "Compliance designed in, not bolted on.",
+    points: ["Tiered KYC and KYB flows", "Fraud detection and AML screening", "Onboarding without the drop-off"],
   },
   {
-    title: "0→1 product building",
+    title: "Technical product leadership",
     icon: "cursor",
     accent: "terracotta",
-    blurb: "Design to deployment, end to end.",
-    points: ["Prototype fast, validate faster", "Build with modern AI tooling", "Deploy and iterate in public"],
+    blurb: "Fluent with engineering on the decisions that matter.",
+    points: ["API design and integrations", "Architecture and trade-off calls", "Data pipelines and ML integration"],
   },
   {
-    title: "Strategy & discovery",
+    title: "Strategy & growth",
     icon: "target",
     accent: "forest",
-    blurb: "Finding the problem worth solving.",
-    points: ["Customer discovery", "Roadmaps tied to outcomes", "Positioning and prioritisation"],
+    blurb: "Roadmaps tied to revenue, retention and trust.",
+    points: ["0→1 launches and go-to-market", "Pricing, ARR and monetisation", "Partnerships and ecosystem"],
   },
 ];

@@ -1,80 +1,72 @@
 ---
 title: "Tiaago"
-subtitle: "AI recruitment platform"
-outcomeHeadline: "[OUTCOME HEADLINE: e.g. Cut time-to-shortlist by X%]"
-accent: cobalt
-role: "[ROLE: e.g. Product lead]"
-timeline: "[TIMELINE: e.g. 6 months]"
-team: "[TEAM: e.g. 2 engineers, 1 designer]"
+subtitle: "AI-powered B2B recruitment suite"
+outcomeHeadline: "Cut recruiter time to shortlist by about 40% and opened an 850M-profile talent index"
+accent: terracotta
+role: "Lead Product Manager"
+timeline: "Mar 2024 – Dec 2025"
+team: "Product and engineering, with HR and EdTech partners"
 stack:
-  - "[Frontend]"
-  - "[API]"
-  - "[LLM provider]"
-  - "[Database]"
-status: "[STATUS: e.g. Live]"
+  - "ML model integration for resume screening and skill assessment"
+  - "Data pipeline and sourcing index of 850M profiles"
+  - "Pipeline as a Service APIs"
+  - "Subscription and usage-based billing"
+status: "Launched"
 metrics:
-  - { label: "Time to shortlist", value: "[METRIC]" }
-  - { label: "Match quality", value: "[METRIC]" }
-  - { label: "Cost per screen", value: "[METRIC]" }
-date: "2025-01-01"
-order: 1
+  - { label: "Time to shortlist", value: "~40% faster" }
+  - { label: "Talent profiles sourced", value: "850M" }
+  - { label: "Pricing", value: "Subscription + usage" }
+date: "2025-12-01"
+order: 2
 ---
+
+Tiaago is an AI-powered B2B recruitment suite. I led product strategy and the roadmap across its full lifecycle, from ideation through launch.
 
 ## Context and problem
 
-<Placeholder>
-Describe the situation Tiaago was built for: the market or team context, the specific problem in hiring workflows, and why it mattered then. Keep it to a short paragraph a hiring manager can skim.
-</Placeholder>
+Recruiting teams spend most of their time on work that scales poorly: reading resumes, assessing skills and finding candidates beyond their existing pipeline. The result is slow shortlists and missed talent.
+
+The opportunity was to automate the high-volume, repeatable parts of hiring with AI, expand sourcing reach far beyond a single database, and let clients run structured hiring inside their own products rather than only inside ours.
 
 ## Who it's for
 
-<Placeholder>
-Name the primary users (recruiting teams and candidates), their jobs to be done, and one or two sentences on how they handle this today.
-</Placeholder>
+Recruiters and hiring teams at B2B clients, and the HR and EdTech platforms that wanted hiring capability embedded in their own products. Their job to be done is to get from an open role to a qualified shortlist faster, with confidence in why each candidate was surfaced.
 
 ## Discovery and key insight
 
-<Placeholder>
-How you found out what mattered: interviews, data, prototypes. Finish with the one insight that changed the direction of the product.
-</Placeholder>
+Partnerships and integrations across HR and EdTech communities gave direct access to how recruiting teams and platforms actually work, and a channel for early adoption.
+
+The insight that shaped the roadmap: recruiters did not need more candidates, they needed fewer, better ones sooner. Value sits in screening and sourcing quality and in how well the product fits existing workflows. That pointed towards automated screening plus very large-scale sourcing, delivered in a way clients could embed.
 
 ## Options considered and decisions
 
-| Option | Upside | Downside | Decision |
-| --- | --- | --- | --- |
-| [Option A] | [Upside] | [Downside] | [Chosen / Rejected, and why] |
-| [Option B] | [Upside] | [Downside] | [Chosen / Rejected, and why] |
-| [Option C] | [Upside] | [Downside] | [Chosen / Rejected, and why] |
-
-<Placeholder>
-Walk through the two or three decisions that shaped the product, naming the trade-off behind each.
-</Placeholder>
+- **Automate screening and assessment first.** Resume screening and AI-driven skill assessment target the largest block of recruiter time, which is why they led the roadmap.
+- **Source at scale through a dataset integration.** I architected the sourcing capability by integrating the platform with a dataset of 850 million talent profiles, so recruiters can surface qualified candidates at scale.
+- **Pipeline as a Service.** Rather than only offering a closed application, I led the framework that lets clients embed and manage structured hiring pipelines directly in their own platforms. This moves Tiaago from a tool to infrastructure that clients build on.
+- **Pricing as product.** I designed flexible subscription and usage-based models, so revenue grows with client value and is more predictable.
 
 ## AI approach
 
-| Area | What to cover |
-| --- | --- |
-| Model choices | [Which models, why, and the cost / latency / quality trade-off] |
-| Prompts | [How prompts are structured, versioned and tested] |
-| Evals | [Offline set, online signals, pass/fail thresholds] |
-| Failure modes | [What goes wrong, how it is detected, the guardrails in place] |
+I partnered with engineering on ML model integration, data pipeline architecture and API development, so the AI features were technically sound and scalable rather than demo-grade. The two AI-facing capabilities were automated resume screening and AI-driven skill assessment, both aimed at shortening the path to a shortlist. Sourcing relied on data pipeline design to make an 850M-profile dataset usable inside the product.
 
 ## What I built
 
 <ArchDiagram project="tiaago" />
 
-<Placeholder>
-List the key screens or endpoints with a one-line description each, and drop screenshots in public/work/. Link the architecture notes in the Built by me section.
-</Placeholder>
+- **Automated resume screening and AI skill assessment** for recruiters.
+- **Enterprise-grade sourcing** across an 850M-profile talent dataset.
+- **Pipeline as a Service**, an embeddable framework for structured hiring pipelines.
+- **Pricing and packaging**: flexible subscription and usage-based models.
+- **Partner ecosystem**: integrations and partnerships across HR and EdTech communities.
 
 ## Outcomes
 
-<Placeholder>
-Report real numbers only: time to shortlist, match quality, cost per screen. Until they are verified, leave the [METRIC] markers in place.
-</Placeholder>
+- Reduced recruiter time to shortlist by approximately **40%** through automated screening and skill assessment.
+- Gave recruiters access to a dataset of **850 million talent profiles**.
+- Launched **Pipeline as a Service**, setting a new benchmark for AI-powered recruiting at scale.
+- Increased ARR and improved revenue predictability through the new pricing models.
+- Expanded the partner ecosystem across HR and EdTech.
 
 ## What I'd do differently
 
-<Placeholder>
-Two or three honest lessons: a decision you would reverse, something you would measure earlier, a risk you underestimated.
-</Placeholder>
+I would define a quality measure for AI screening decisions, such as agreement with recruiter judgment, before scaling the sourcing dataset, so volume never ran ahead of trust. I would also begin the Pipeline as a Service conversation with clients earlier, because it changed the product from a feature set into a platform, and it was the part clients valued most.

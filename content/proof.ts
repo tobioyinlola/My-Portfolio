@@ -4,7 +4,8 @@ export interface ProofItem {
 }
 
 export const proof: readonly ProofItem[] = [
-  { value: "5+", label: "Years in product" },
-  { value: "[N]", label: "Products shipped" },
-  { value: "[N]", label: "Domains: AI, fintech, HR tech" },
+  { value: "$45M+", label: "Monthly volume scaled" },
+  { value: "850M", label: "Profile dataset shipped" },
+  { value: "-30%", label: "Fraud reduction" },
+  { value: "6+", label: "Years in product" },
 ];
